@@ -81,7 +81,7 @@ export function setMainMenu() {
   if (process.platform === 'darwin') {
     template.unshift(darwinMenuItem);
   } else {
-    if (!(template[0].submenu instanceof Menu)) {
+    if (template[0].submenu instanceof Array) {
       template[0].submenu?.push(...[Separator, quitMenuItem]);
     }
   }

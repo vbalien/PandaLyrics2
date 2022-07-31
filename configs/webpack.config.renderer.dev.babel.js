@@ -3,6 +3,7 @@ import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import { spawn } from 'child_process';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
@@ -46,11 +47,9 @@ export default merge(baseConfig, {
       NODE_ENV: 'development',
     }),
     new MiniCssExtractPlugin(),
+    new ESLintPlugin(),
     new ForkTsCheckerWebpackPlugin({
       async: false,
-      eslint: {
-        files: path.join(__dirname, '../src/**/*.{ts,tsx,js,jsx}'),
-      },
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../src/renderer/index.html'),
