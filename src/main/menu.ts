@@ -1,4 +1,5 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
+import { createSettingsWindow, windowContext } from './window';
 
 const name = app.name;
 
@@ -6,31 +7,9 @@ const Separator: MenuItemConstructorOptions = {
   type: 'separator',
 };
 
-const commonMenuItems: MenuItemConstructorOptions[] = [
-  {
-    label: '파일',
-    submenu: [
-      {
-        label: '열기',
-        accelerator: 'CmdOrCtrl+O',
-        click() {
-          return;
-        },
-      },
-      Separator,
-      {
-        label: '저장',
-        accelerator: 'CmdOrCtrl+S',
-        click() {
-          return;
-        },
-      },
-    ],
-  },
-];
-
 const darwinMenuItem: MenuItemConstructorOptions = {
   label: name,
+  type: 'submenu',
   submenu: [
     {
       label: name + '에 대하여',
@@ -75,8 +54,33 @@ const quitMenuItem: MenuItemConstructorOptions = {
   },
 };
 
-export function setMainMenu() {
-  const template = [...commonMenuItems];
+export const trayMenu = Menu.buildFromTemplate([
+  { label: '표시', type: 'checkbox', id: 'appVisible' },
+  Separator,
+  { label: '가사 선택', type: 'submenu', id: 'lyrics', submenu: [] },
+  Separator,
+  { label: '위치 이동', type: 'checkbox', id: 'moveMode' },
+  {
+    label: '환경설정',
+    type: 'normal',
+    id: 'settings',
+    click: () => {
+      if (windowContext.settingsWindow === null) {
+        windowContext.settingsWindow = createSettingsWindow();
+        windowContext.settingsWindow.on('closed', () => {
+          windowContext.settingsWindow = null;
+        });
+      } else {
+        windowContext.settingsWindow.show();
+      }
+    },
+  },
+  Separator,
+  { label: '종료', type: 'normal', id: 'exit', click: () => app.quit() },
+]);
+
+export function setApplicationMenu() {
+  const template = [];
 
   if (process.platform === 'darwin') {
     template.unshift(darwinMenuItem);
