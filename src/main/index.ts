@@ -1,9 +1,16 @@
-import { app, nativeImage, Tray } from 'electron';
+import { app, BrowserWindow, nativeImage, Tray } from 'electron';
 import path from 'path';
-import { createMainWindow, windowContext } from './window';
+import { createMainWindow } from './window';
 import { setApplicationMenu, trayMenu } from './menu';
+import { setupIpc } from './ipc';
 
-let tray: Tray | null;
+export const context: {
+  mainWindow: BrowserWindow | null;
+  tray: Tray | null;
+} = {
+  mainWindow: null,
+  tray: null,
+};
 
 if (process.platform === 'darwin') {
   app.dock.hide();
@@ -16,18 +23,19 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (windowContext.mainWindow === null) {
-    windowContext.mainWindow = createMainWindow();
+  if (context.mainWindow === null) {
+    context.mainWindow = createMainWindow();
   }
 });
 
 app.on('ready', async () => {
   const iconPath = path.join(__dirname, '../assets/Icon-App-20x20.png');
   const icon = nativeImage.createFromPath(iconPath);
-  tray = new Tray(icon);
+  const tray = (context.tray = new Tray(icon));
   tray.setContextMenu(trayMenu);
   tray.setToolTip('PandaLyrics');
 
-  windowContext.mainWindow = createMainWindow();
+  setupIpc();
+  context.mainWindow = createMainWindow();
   setApplicationMenu();
 });

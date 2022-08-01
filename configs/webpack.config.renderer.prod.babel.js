@@ -18,6 +18,9 @@ export default merge(baseConfig, {
     path: path.join(__dirname, '../dist/renderer'),
     filename: 'index.js',
     publicPath: './',
+    library: {
+      type: 'umd',
+    },
   },
 
   module: {

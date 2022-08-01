@@ -1,5 +1,6 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
-import { createSettingsWindow, windowContext } from './window';
+import { context } from './';
+import { setVisible } from './util';
 
 const name = app.name;
 
@@ -55,24 +56,31 @@ const quitMenuItem: MenuItemConstructorOptions = {
 };
 
 export const trayMenu = Menu.buildFromTemplate([
-  { label: '표시', type: 'checkbox', id: 'appVisible' },
+  {
+    label: '표시',
+    type: 'checkbox',
+    id: 'appVisible',
+    click: menuItem => {
+      setVisible(menuItem.checked);
+    },
+  },
   Separator,
   { label: '가사 선택', type: 'submenu', id: 'lyrics', submenu: [] },
   Separator,
-  { label: '위치 이동', type: 'checkbox', id: 'moveMode' },
+  {
+    label: '위치 이동',
+    type: 'checkbox',
+    id: 'moveMode',
+    click: menuItem => {
+      context.mainWindow?.webContents.send('app:setMove', menuItem.checked);
+    },
+  },
   {
     label: '환경설정',
     type: 'normal',
     id: 'settings',
     click: () => {
-      if (windowContext.settingsWindow === null) {
-        windowContext.settingsWindow = createSettingsWindow();
-        windowContext.settingsWindow.on('closed', () => {
-          windowContext.settingsWindow = null;
-        });
-      } else {
-        windowContext.settingsWindow.show();
-      }
+      context.mainWindow?.webContents.send('dialog:openSettings');
     },
   },
   Separator,
@@ -80,7 +88,7 @@ export const trayMenu = Menu.buildFromTemplate([
 ]);
 
 export function setApplicationMenu() {
-  const template = [];
+  const template: MenuItemConstructorOptions[] = [];
 
   if (process.platform === 'darwin') {
     template.unshift(darwinMenuItem);

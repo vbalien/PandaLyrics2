@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ColorResult } from 'react-color';
 import ColorPicker from './ColorPicker';
 
@@ -7,9 +7,6 @@ export default function Settings() {
   const handleChange = (color: ColorResult) => {
     setColor(color.hex);
   };
-  useEffect(() => {
-    document.title = 'Settings';
-  }, []);
   return (
     <div className="m-3">
       <h1 className="text-base font-bold text-primary-content">글자 설정</h1>

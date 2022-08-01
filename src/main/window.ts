@@ -1,12 +1,8 @@
 import { BrowserWindow, screen } from 'electron';
+import { context } from './';
 import path from 'path';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-
-export const windowContext: {
-  mainWindow: BrowserWindow | null;
-  settingsWindow: BrowserWindow | null;
-} = { mainWindow: null, settingsWindow: null };
 
 export function createMainWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -20,8 +16,9 @@ export function createMainWindow() {
     hasShadow: false,
     skipTaskbar: true,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: isDevelopment
+        ? path.join(__dirname, '../../dist/preload.js')
+        : path.join(__dirname, 'preload.js'),
     },
     useContentSize: true,
     width: 600,
@@ -49,21 +46,27 @@ export function createMainWindow() {
   }
 
   window.on('closed', () => {
-    windowContext.mainWindow = null;
+    context.mainWindow = null;
   });
 
   window.webContents.on('did-finish-load', () => {
-    if (!windowContext.mainWindow) {
+    if (!context.mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    windowContext.mainWindow.show();
-    windowContext.mainWindow.focus();
+    context.mainWindow.show();
+    context.mainWindow.focus();
   });
 
   window.webContents.on('devtools-opened', () => {
-    windowContext.mainWindow.focus();
+    if (!context.mainWindow) {
+      throw new Error('"mainWindow" is not defined');
+    }
+    context.mainWindow.focus();
     setImmediate(() => {
-      windowContext.mainWindow.focus();
+      if (!context.mainWindow) {
+        throw new Error('"mainWindow" is not defined');
+      }
+      context.mainWindow.focus();
     });
   });
 

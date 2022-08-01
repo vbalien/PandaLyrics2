@@ -9,6 +9,7 @@
     "start": "yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./scripts/BabelRegister ./src/main/index.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js",
+    "start:preload": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.preload.dev.babel.js",
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js",
