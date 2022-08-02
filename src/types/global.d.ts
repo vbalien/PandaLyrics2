@@ -9,13 +9,6 @@ interface LyricInfo {
   artist: string;
 }
 
-interface PandaLyricsAPI {
-  onSettingsOpen(listener: () => void): () => void;
-  setVisible(value: boolean): void;
-  clearLyrics(value: boolean): void;
-  setLyrics(lyrics: LyricInfo[]): void;
-}
-
 interface Window {
-  pandaLyricsAPI: PandaLyricsAPI;
+  pandaLyricsAPI: import('../main/preload').PandaLyricsAPI;
 }

@@ -1,14 +1,21 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
-contextBridge.exposeInMainWorld('pandaLyricsAPI', {
+const pandaLyricsAPI = {
+  windowMoving: (x: number, y: number) => {
+    ipcRenderer.send('windowMoving', x, y);
+  },
+
   onSettingsOpen: (listener: () => void) => {
     ipcRenderer.on('dialog:openSettings', listener);
     return () => ipcRenderer.off('dialog:openSettings', listener);
   },
 
-  onSetMove: (listener: () => void) => {
-    ipcRenderer.on('app:setMove', listener);
-    return () => ipcRenderer.off('app:setMove', listener);
+  onSetMove: (listener: (value: boolean) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, value: boolean) => {
+      listener(value);
+    };
+    ipcRenderer.on('app:setMove', handler);
+    return () => ipcRenderer.off('app:setMove', handler);
   },
 
   setMove: (value: boolean) => {
@@ -26,4 +33,8 @@ contextBridge.exposeInMainWorld('pandaLyricsAPI', {
   setLyrics: (lyrics: LyricInfo[]) => {
     ipcRenderer.invoke('app:setLyrics', lyrics);
   },
-});
+};
+
+contextBridge.exposeInMainWorld('pandaLyricsAPI', pandaLyricsAPI);
+
+export type PandaLyricsAPI = typeof pandaLyricsAPI;

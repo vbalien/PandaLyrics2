@@ -13,6 +13,7 @@ export default class MainWindow extends BrowserWindow {
       minimizable: false,
       maximizable: false,
       resizable: false,
+      roundedCorners: false,
       show: false,
       hasShadow: false,
       skipTaskbar: true,
@@ -61,6 +62,22 @@ export default class MainWindow extends BrowserWindow {
   }
   onDevtoolsOpened() {
     this.focus();
+  }
+
+  setMoveMode(value: boolean, request?: boolean) {
+    this.setIgnoreMouseEvents(!value);
+    const menu = this.context.trayMenu?.getItem('moveMode');
+    if (!menu || !this.context.trayMenu) return;
+    menu.checked = value;
+    this.context.tray?.setContextMenu(this.context.trayMenu.build());
+
+    if (request) {
+      this.context.mainWindow?.webContents.send('app:setMove', value);
+    }
+  }
+
+  requestSettingsOpen() {
+    this.context.mainWindow?.webContents.send('dialog:openSettings');
   }
 
   show() {

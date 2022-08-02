@@ -1,19 +1,10 @@
 import { css, Global } from '@emotion/react';
-import { useEffect } from 'react';
-import useDetectSettingsOpen from '../../hooks/use-open-settings';
+import useOpenSettings from '../../hooks/use-open-settings';
+import MovingBox from './MovingBox';
 
 export default function Main() {
-  useDetectSettingsOpen();
+  useOpenSettings();
 
-  useEffect(() => {
-    window.pandaLyricsAPI.setLyrics([
-      {
-        title: 'ilbe',
-        artist: '',
-        album: '',
-      },
-    ]);
-  }, []);
   return (
     <>
       <Global
@@ -23,7 +14,7 @@ export default function Main() {
           }
         `}
       />
-      test
+      <MovingBox>test</MovingBox>
     </>
   );
 }

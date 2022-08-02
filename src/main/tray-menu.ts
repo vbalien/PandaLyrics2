@@ -1,6 +1,6 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
-import { Context } from 'vm';
 import { Separator } from './menu';
+import { AppContext } from './types';
 
 export default class TrayMenu {
   private raw: MenuItemConstructorOptions[] = [
@@ -20,10 +20,7 @@ export default class TrayMenu {
       type: 'checkbox',
       id: 'moveMode',
       click: menuItem => {
-        this.context.mainWindow?.webContents.send(
-          'app:setMove',
-          menuItem.checked
-        );
+        this.context.mainWindow?.setMoveMode(menuItem.checked, true);
       },
     },
     {
@@ -31,7 +28,7 @@ export default class TrayMenu {
       type: 'normal',
       id: 'settings',
       click: () => {
-        this.context.mainWindow?.webContents.send('dialog:openSettings');
+        this.context.mainWindow?.requestSettingsOpen();
       },
     },
     Separator,
@@ -46,7 +43,7 @@ export default class TrayMenu {
   ];
   private _menu: Menu = new Menu();
 
-  constructor(private context: Context) {}
+  constructor(private context: AppContext) {}
 
   getItem(id: string): MenuItemConstructorOptions | null {
     for (const item of this.raw) {
@@ -60,6 +57,11 @@ export default class TrayMenu {
   build(): Menu {
     this._menu = Menu.buildFromTemplate(this.raw);
     return this.menu;
+  }
+
+  apply(): void {
+    this.build();
+    this.context.tray?.setContextMenu(this._menu);
   }
 
   get menu() {

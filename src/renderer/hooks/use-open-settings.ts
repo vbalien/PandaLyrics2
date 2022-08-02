@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function useDetectSettingsOpen() {
+export default function useOpenSettings() {
   const win = useRef<Window | null>(null);
 
   useEffect(() => {
