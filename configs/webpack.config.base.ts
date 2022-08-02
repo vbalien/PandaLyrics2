@@ -39,4 +39,4 @@ export default {
       async: false,
     }),
   ],
-};
+} as webpack.Configuration;

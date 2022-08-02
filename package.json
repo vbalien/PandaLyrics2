@@ -1,24 +1,25 @@
 {
-  "name": "simple-react-electron-boilerplate",
+  "name": "panda-lyrics",
   "version": "0.1.0",
-  "main": "./dist/main/index.js",
+  "main": "./src/main/main.ts",
   "repository": "https://github.com/vbalien/simple-react-electron-boilerplate.git",
   "author": "Jisu Kim",
   "license": "MIT",
   "scripts": {
     "start": "yarn start:renderer",
-    "start:main": "cross-env NODE_ENV=development electron -r ./scripts/BabelRegister ./src/main/index.ts",
-    "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js",
-    "start:preload": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.preload.dev.babel.js",
+    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
+    "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./configs/webpack.config.renderer.dev.ts",
+    "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.preload.dev.ts",
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
-    "build:main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js",
-    "build:renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js",
+    "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.main.prod.ts",
+    "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.renderer.prod.ts",
     "package": "shx rm -rf ./dist && yarn build && electron-builder build --publish never"
   },
   "build": {
     "files": [
       "dist/",
-      "package.json"
+      "package.json",
+      "src/assets/"
     ],
     "directories": {
       "output": "release"
@@ -36,9 +37,11 @@
     "@babel/register": "^7.14.5",
     "@emotion/babel-plugin": "^11.10.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.0-rc.2",
+    "@types/node": "^18.6.3",
     "@types/react": "^18.0.15",
     "@types/react-color": "^3.0.6",
     "@types/react-dom": "^18.0.6",
+    "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
     "autoprefixer": "^10.4.8",
@@ -50,6 +53,7 @@
     "daisyui": "^2.20.0",
     "electron": "^19.0.10",
     "electron-builder": "^23.1.0",
+    "electronmon": "^2.0.2",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
@@ -67,7 +71,8 @@
     "react-refresh": "^0.14.0",
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.7",
-    "typescript": "^4.3.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
     "webpack": "^5.44.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0-beta.3",
@@ -79,5 +84,12 @@
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0"
+  },
+  "electronmon": {
+    "patterns": [
+      "!**/**",
+      "src/main/*"
+    ],
+    "logLevel": "quiet"
   }
 }

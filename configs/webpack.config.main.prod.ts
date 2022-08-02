@@ -9,11 +9,14 @@ export default merge(baseConfig, {
 
   target: 'electron-main',
 
-  entry: path.join(__dirname, '../src/main/index.ts'),
+  entry: {
+    main: path.join(__dirname, '../src/main/main.ts'),
+    preload: path.join(__dirname, '../src/main/preload.ts'),
+  },
 
   output: {
     path: path.join(__dirname, '../dist/main'),
-    filename: 'index.js',
+    filename: '[name].js',
   },
 
   optimization: {

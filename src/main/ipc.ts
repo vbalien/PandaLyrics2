@@ -1,31 +1,30 @@
-import { ipcMain, MenuItem } from 'electron';
-import { context } from './';
-import { trayMenu } from './menu';
-import { setVisible } from './util';
+import { ipcMain, Menu, MenuItem } from 'electron';
+import { context } from './context';
 
 export function setupIpc() {
   ipcMain.handle('app:setMove', (_ev, value: boolean) => {
-    const menu = trayMenu.getMenuItemById('moveMode');
-    if (!menu) return;
+    const menu = context.trayMenu?.getItem('moveMode');
+    if (!menu || !context.trayMenu) return;
     menu.checked = value;
-    context.tray?.setContextMenu(trayMenu);
+    context.tray?.setContextMenu(context.trayMenu.build());
   });
 
   ipcMain.handle('app:setVisible', (_ev, value: boolean) => {
-    setVisible(value);
+    context.mainWindow?.setVisible(value);
   });
 
   ipcMain.handle('app:clearLyrics', () => {
-    const menu = trayMenu.getMenuItemById('lyrics');
-    if (!menu || !menu.submenu) return;
-    menu.submenu.items = [];
-    context.tray?.setContextMenu(trayMenu);
+    const menu = context.trayMenu?.getItem('lyrics');
+    if (!menu || !context.trayMenu) return;
+    menu.submenu = [];
+    context.tray?.setContextMenu(context.trayMenu.build());
   });
 
   ipcMain.handle('app:setLyrics', (_ev, lyrics: LyricInfo[]) => {
-    const menu = trayMenu.getMenuItemById('lyrics');
-    if (!menu || !menu.submenu) return;
+    const menu = context.trayMenu?.getItem('lyrics');
+    if (!menu || !context.trayMenu) return;
 
+    menu.submenu = new Menu();
     for (const info of lyrics) {
       menu.submenu.append(
         new MenuItem({
@@ -34,6 +33,6 @@ export function setupIpc() {
         })
       );
     }
-    context.tray?.setContextMenu(trayMenu);
+    context.tray?.setContextMenu(context.trayMenu.build());
   });
 }

@@ -10,7 +10,7 @@ import baseConfig from './webpack.config.base';
 export default merge(baseConfig, {
   mode: 'production',
 
-  target: 'electron-renderer',
+  target: ['web', 'electron-renderer'],
 
   entry: path.join(__dirname, '../src/renderer/index.tsx'),
 

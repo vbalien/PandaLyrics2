@@ -8,8 +8,10 @@ export default function useDetectSettingsOpen() {
       if (win.current !== null && !win.current.closed) {
         return;
       }
+      const url = new URL(window.location.href);
+      url.hash = '#settings';
       win.current = window.open(
-        './#settings',
+        url.href,
         '_blank',
         `width=400,height=600,resizable=false,maximizable=false,minimizable=false`
       ) as Window;

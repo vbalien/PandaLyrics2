@@ -1,10 +1,8 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
-import { context } from './';
-import { setVisible } from './util';
 
 const name = app.name;
 
-const Separator: MenuItemConstructorOptions = {
+export const Separator: MenuItemConstructorOptions = {
   type: 'separator',
 };
 
@@ -47,55 +45,11 @@ const darwinMenuItem: MenuItemConstructorOptions = {
   ],
 };
 
-const quitMenuItem: MenuItemConstructorOptions = {
-  label: '끝내기',
-  accelerator: 'Ctrl+W',
-  click: function () {
-    app.quit();
-  },
-};
-
-export const trayMenu = Menu.buildFromTemplate([
-  {
-    label: '표시',
-    type: 'checkbox',
-    id: 'appVisible',
-    click: menuItem => {
-      setVisible(menuItem.checked);
-    },
-  },
-  Separator,
-  { label: '가사 선택', type: 'submenu', id: 'lyrics', submenu: [] },
-  Separator,
-  {
-    label: '위치 이동',
-    type: 'checkbox',
-    id: 'moveMode',
-    click: menuItem => {
-      context.mainWindow?.webContents.send('app:setMove', menuItem.checked);
-    },
-  },
-  {
-    label: '환경설정',
-    type: 'normal',
-    id: 'settings',
-    click: () => {
-      context.mainWindow?.webContents.send('dialog:openSettings');
-    },
-  },
-  Separator,
-  { label: '종료', type: 'normal', id: 'exit', click: () => app.quit() },
-]);
-
 export function setApplicationMenu() {
   const template: MenuItemConstructorOptions[] = [];
 
   if (process.platform === 'darwin') {
     template.unshift(darwinMenuItem);
-  } else {
-    if (template[0].submenu instanceof Array) {
-      template[0].submenu?.push(...[Separator, quitMenuItem]);
-    }
   }
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
