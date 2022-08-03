@@ -41,6 +41,7 @@
     "@types/react": "^18.0.15",
     "@types/react-color": "^3.0.6",
     "@types/react-dom": "^18.0.6",
+    "@types/tinycolor": "^1.1.27",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
@@ -81,10 +82,12 @@
   "dependencies": {
     "@babel/core": "^7.14.6",
     "@emotion/react": "^11.10.0",
+    "font-list": "^1.4.5",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
-    "recoil": "^0.7.4"
+    "recoil": "^0.7.4",
+    "tinycolor": "^0.0.1"
   },
   "electronmon": {
     "patterns": [

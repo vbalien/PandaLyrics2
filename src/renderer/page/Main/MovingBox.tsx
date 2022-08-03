@@ -1,5 +1,6 @@
 import { css } from '@emotion/react';
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
+import { useSettings } from '../../store/settings';
 import useMoveMode from '../../store/move-mode';
 
 type MovingBoxProps = {
@@ -7,6 +8,7 @@ type MovingBoxProps = {
 };
 export default function MovingBox({ children }: MovingBoxProps) {
   const [moveMode, setMoveMode] = useMoveMode();
+  const [, setSettings] = useSettings();
   const mouse = useRef({ x: 0, y: 0, isDown: false });
   const moveWindow = () => {
     window.pandaLyricsAPI.windowMoving(mouse.current.x, mouse.current.y);
@@ -14,6 +16,18 @@ export default function MovingBox({ children }: MovingBoxProps) {
       requestAnimationFrame(moveWindow);
     }
   };
+
+  useEffect(() => {
+    if (moveMode) {
+      return;
+    }
+    const [x, y] = window.pandaLyricsAPI.getWindowPos();
+    setSettings({
+      windowLeft: x,
+      windowTop: y,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moveMode]);
 
   const onMouseDown: React.MouseEventHandler<HTMLElement> = e => {
     mouse.current.x = e.clientX;
@@ -34,11 +48,14 @@ export default function MovingBox({ children }: MovingBoxProps) {
   return (
     <div
       css={css`
-        user-select: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         cursor: move;
         background-color: ${moveMode ? '#000' : 'transparent'};
         width: 100vw;
-        height: 100vh;
+        min-height: 150px;
+        padding: 0.5em;
       `}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}

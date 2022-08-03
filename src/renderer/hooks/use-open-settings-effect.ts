@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function useOpenSettings() {
+export default function useOpenSettingsEffect() {
   const win = useRef<Window | null>(null);
 
   useEffect(() => {
@@ -10,12 +10,7 @@ export default function useOpenSettings() {
       }
       const url = new URL(window.location.href);
       url.hash = '#settings';
-      win.current = window.open(
-        url.href,
-        '_blank',
-        `width=400,height=600,resizable=false,maximizable=false,minimizable=false`
-      ) as Window;
-      win.current.document.title = 'Settings';
+      win.current = window.open(url.href, '_blank') as Window;
     };
     const unSub = window.pandaLyricsAPI.onSettingsOpen(callback);
     return () => {

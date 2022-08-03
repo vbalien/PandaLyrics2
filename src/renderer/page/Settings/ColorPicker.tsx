@@ -20,8 +20,8 @@ export default function ColorPicker(props: ColorPickerProps) {
         css={css`
           padding: 5px;
           background: #fff;
-          borderradius: 1px;
-          boxshadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+          border-radius: 1px;
+          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
           display: inline-block;
           cursor: pointer;
         `}
@@ -30,7 +30,7 @@ export default function ColorPicker(props: ColorPickerProps) {
           css={css`
             width: 36px;
             height: 14px;
-            borderradius: 2px;
+            border-radius: 2px;
             background: ${props.color};
           `}
           onClick={handleOpen}

@@ -1,12 +1,35 @@
-import { useState } from 'react';
+import { css } from '@emotion/react';
+import { useEffect, useMemo, useState } from 'react';
 import { ColorResult } from 'react-color';
+import { useSettings } from '../../store/settings';
 import ColorPicker from './ColorPicker';
 
 export default function Settings() {
-  const [color, setColor] = useState<string>('#000');
-  const handleChange = (color: ColorResult) => {
-    setColor(color.hex);
-  };
+  const [fonts, setFonts] = useState<string[]>([]);
+  const [settings, setSettings] = useSettings();
+  const { handleChangeColor, handleChangeNumber, handleChangeBool } = useMemo(
+    () => ({
+      handleChangeColor: (key: SettingsColorType) => (color: ColorResult) => {
+        setSettings(key, color.hex);
+      },
+      handleChangeNumber:
+        (key: SettingsNumberType) =>
+        (ev: React.ChangeEvent<HTMLInputElement>) => {
+          setSettings(key, Number.parseFloat(ev.target.value));
+        },
+      handleChangeBool:
+        (key: SettingsBoolType) =>
+        (ev: React.ChangeEvent<HTMLInputElement>) => {
+          setSettings(key, ev.target.checked);
+        },
+    }),
+    [setSettings]
+  );
+  useEffect(() => {
+    setFonts(window.pandaLyricsAPI.getAllSystemFonts());
+    document.title = 'Settings';
+  }, []);
+
   return (
     <div className="m-3">
       <h1 className="text-base font-bold text-primary-content">글자 설정</h1>
@@ -14,21 +37,60 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">글자색</span>
-          <ColorPicker color={color} onChange={handleChange} />
+          <ColorPicker
+            color={settings.fontColor}
+            onChange={handleChangeColor('fontColor')}
+          />
         </label>
       </div>
 
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">그림자색</span>
-          <ColorPicker color={color} onChange={handleChange} />
+          <ColorPicker
+            color={settings.shadowColor}
+            onChange={handleChangeColor('shadowColor')}
+          />
         </label>
       </div>
 
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">폰트</span>
-          TODO
+          <select
+            className="select select-bordered select-sm"
+            onChange={ev => {
+              setSettings('fontFamily', (ev.target as HTMLSelectElement).value);
+            }}
+            css={css`
+              font-family: ${settings.fontFamily};
+              font-size: 13pt;
+            `}
+          >
+            {fonts.map(fontname => (
+              <option
+                key={fontname}
+                css={css`
+                  font-family: ${fontname};
+                `}
+                selected={fontname === settings.fontFamily}
+              >
+                {fontname.replaceAll('"', '')}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text">폰트 크기</span>
+          <input
+            type="number"
+            className="input input-bordered input-sm"
+            value={settings.fontSize}
+            onChange={handleChangeNumber('fontSize')}
+          />
         </label>
       </div>
 
@@ -42,8 +104,9 @@ export default function Settings() {
           type="range"
           min="0"
           max="100"
-          value="40"
+          value={settings.bgWidth}
           className="range range-xs"
+          onChange={handleChangeNumber('bgWidth')}
         />
       </div>
 
@@ -54,9 +117,11 @@ export default function Settings() {
         <input
           type="range"
           min="0"
-          max="100"
-          value="40"
+          max="1"
+          step="0.01"
+          value={settings.winAlpha}
           className="range range-xs"
+          onChange={handleChangeNumber('winAlpha')}
         />
       </div>
 
@@ -67,14 +132,22 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">배경 표시</span>
-          <input type="checkbox" className="toggle toggle-sm" checked />
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            checked={settings.bgVisible}
+            onChange={handleChangeBool('bgVisible')}
+          />
         </label>
       </div>
 
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">배경색</span>
-          <ColorPicker color={color} onChange={handleChange} />
+          <ColorPicker
+            color={settings.bgColor}
+            onChange={handleChangeColor('bgColor')}
+          />
         </label>
       </div>
 
@@ -85,9 +158,11 @@ export default function Settings() {
         <input
           type="range"
           min="0"
-          max="100"
-          value="40"
+          max="1"
+          step="0.01"
+          value={settings.bgAlpha}
           className="range range-xs"
+          onChange={handleChangeNumber('bgAlpha')}
         />
       </div>
 
@@ -95,7 +170,14 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">자동실행</span>
-          <input type="checkbox" className="toggle toggle-sm" checked />
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            defaultChecked={window.pandaLyricsAPI.getAutoStart()}
+            onChange={ev => {
+              window.pandaLyricsAPI.setAutoStart(ev.target.checked);
+            }}
+          />
         </label>
       </div>
     </div>

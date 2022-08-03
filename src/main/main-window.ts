@@ -1,10 +1,22 @@
-import { BrowserWindow, screen } from 'electron';
+import {
+  BrowserWindow,
+  BrowserWindowConstructorOptions,
+  HandlerDetails,
+  screen,
+} from 'electron';
 import path from 'path';
 import { AppContext } from './types';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default class MainWindow extends BrowserWindow {
+  static Preload = isDevelopment
+    ? path.join(__dirname, '../../dist/preload.js')
+    : path.join(__dirname, 'preload.js');
+  static PageUrl = isDevelopment
+    ? 'http://localhost:8080/'
+    : `file://${path.join(__dirname, '../renderer/index.html')}`;
+
   constructor(private context: AppContext) {
     const primaryDisplay = screen.getPrimaryDisplay();
     super({
@@ -18,9 +30,7 @@ export default class MainWindow extends BrowserWindow {
       hasShadow: false,
       skipTaskbar: true,
       webPreferences: {
-        preload: isDevelopment
-          ? path.join(__dirname, '../../dist/preload.js')
-          : path.join(__dirname, 'preload.js'),
+        preload: MainWindow.Preload,
       },
       useContentSize: true,
       width: 600,
@@ -36,30 +46,45 @@ export default class MainWindow extends BrowserWindow {
     this.setMenuBarVisibility(false);
 
     this.on('closed', this.onClosed.bind(this));
-    this.webContents.on('did-finish-load', this.onDidFinishLoad.bind(this));
     this.webContents.on('devtools-opened', this.onDevtoolsOpened.bind(this));
+    this.webContents.setWindowOpenHandler(this.windowOpenHandler.bind(this));
 
     if (isDevelopment) {
       this.webContents.openDevTools();
     }
 
-    if (isDevelopment) {
-      this.loadURL(`http://localhost:8080/#main`);
-    } else {
-      this.loadURL(
-        `file://${path.join(__dirname, '../renderer/index.html')}#main`
-      );
+    const pageUrl = new URL(MainWindow.PageUrl);
+    pageUrl.hash = '#main';
+    this.loadURL(pageUrl.href);
+  }
+
+  windowOpenHandler(handlerDetails: HandlerDetails) {
+    const pageUrl = new URL(MainWindow.PageUrl);
+    const handleUrl = new URL(handlerDetails.url);
+
+    pageUrl.hash = '#settings';
+    if (pageUrl.href === handleUrl.href) {
+      return {
+        action: 'allow' as const,
+        overrideBrowserWindowOptions: {
+          width: 400,
+          height: 600,
+          resizable: false,
+          maximizable: false,
+          minimizable: false,
+          webPreferences: {
+            preload: MainWindow.Preload,
+          },
+        } as BrowserWindowConstructorOptions,
+      };
     }
+    return { action: 'deny' as const };
   }
 
   onClosed() {
     this.context.mainWindow = null;
   }
 
-  onDidFinishLoad() {
-    this.show();
-    this.focus();
-  }
   onDevtoolsOpened() {
     this.focus();
   }
@@ -96,11 +121,14 @@ export default class MainWindow extends BrowserWindow {
     this.context.tray?.setContextMenu(this.context.trayMenu.build());
   }
 
-  setVisible(value: boolean) {
+  setVisible(value: boolean, request?: boolean) {
     if (value) {
       this.show();
     } else {
       this.hide();
+    }
+    if (request) {
+      this.context.mainWindow?.webContents.send('app:setVisible', value);
     }
   }
 }

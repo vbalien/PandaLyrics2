@@ -9,7 +9,7 @@ export default class TrayMenu {
       type: 'checkbox',
       id: 'appVisible',
       click: menuItem => {
-        this.context.mainWindow?.setVisible(menuItem.checked);
+        this.context.mainWindow?.setVisible(menuItem.checked, true);
       },
     },
     Separator,

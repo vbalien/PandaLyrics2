@@ -1,9 +1,12 @@
 import { css, Global } from '@emotion/react';
-import useOpenSettings from '../../hooks/use-open-settings';
+import useAppInitialEffect from '../../hooks/use-app-initial-effect';
+import useOpenSettingsEffect from '../../hooks/use-open-settings-effect';
+import Lyrics from './Lyrics';
 import MovingBox from './MovingBox';
 
 export default function Main() {
-  useOpenSettings();
+  useOpenSettingsEffect();
+  useAppInitialEffect();
 
   return (
     <>
@@ -11,10 +14,13 @@ export default function Main() {
         styles={css`
           html {
             background-color: transparent !important;
+            overflow: hidden;
           }
         `}
       />
-      <MovingBox>test</MovingBox>
+      <MovingBox>
+        <Lyrics />
+      </MovingBox>
     </>
   );
 }
