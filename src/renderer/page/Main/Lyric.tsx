@@ -54,7 +54,7 @@ export default function Lyric() {
         0
       ) *
         settings.fontSize +
-      settings.fontSize * 4
+      settings.fontSize * (lyricEntities.length + 1)
     );
   }, [lyricEntities, settings.fontSize]);
   useEffect(() => {
@@ -63,6 +63,9 @@ export default function Lyric() {
   return (
     <div
       css={css`
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         position: relative;
         overflow: hidden;
         text-align: center;
@@ -95,7 +98,7 @@ export default function Lyric() {
               opacity,
               height: entity.height * settings.fontSize,
               overflow: 'hidden',
-              transform,
+              transform: settings.threeView ? transform : undefined,
             }}
           >
             <LyricText

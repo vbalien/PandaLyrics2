@@ -1,5 +1,6 @@
 import { LyricDetailData } from '../../main/alsong';
 import { atom, selector, useRecoilValue } from 'recoil';
+import { ThreeViewState } from './settings';
 
 const LyricTimeState = atom<number>({
   key: 'LyricTimeState',
@@ -80,6 +81,7 @@ const LyricEntitiesState = selector({
 const DisplayLyricEntities = selector<LyricEntities>({
   key: 'DisplayLyricList',
   get: ({ get }) => {
+    const threeView = get(ThreeViewState);
     const entities = get(LyricEntitiesState);
     const time = get(LyricTimeState);
 
@@ -89,11 +91,15 @@ const DisplayLyricEntities = selector<LyricEntities>({
         continue;
       }
       if (entity.time <= time) {
-        return [
-          entities.at(i - 1),
-          { ...entities.at(i), current: true },
-          entities.at(i + 1),
-        ].filter(i => i !== undefined) as LyricEntities;
+        if (threeView) {
+          return [
+            entities.at(i - 1),
+            { ...entities.at(i), current: true },
+            entities.at(i + 1),
+          ].filter(i => i !== undefined) as LyricEntities;
+        } else {
+          return [{ ...entities.at(i), current: true }] as LyricEntities;
+        }
       }
       entity.time;
     }

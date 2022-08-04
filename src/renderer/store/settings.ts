@@ -1,4 +1,4 @@
-import { atom, useRecoilState } from 'recoil';
+import { atom, selector, useRecoilState } from 'recoil';
 
 export type SettingsType = {
   fontFamily?: string;
@@ -13,6 +13,7 @@ export type SettingsType = {
   bgColor: string;
   bgAlpha: number;
   winAlpha: number;
+  threeView?: boolean;
 };
 type PostFixFilter<T, F extends string> = keyof T extends infer K
   ? K extends `${string}${F}`
@@ -29,7 +30,7 @@ type TypeFilter<T, F> = {
 
 export type SettingsColorType = PostFixFilter<SettingsType, 'Color'>;
 export type SettingsNumberType = TypeFilter<SettingsType, number | undefined>;
-export type SettingsBoolType = TypeFilter<SettingsType, boolean>;
+export type SettingsBoolType = TypeFilter<SettingsType, boolean | undefined>;
 
 const initialState: SettingsType = {
   fontSize: 14,
@@ -74,6 +75,11 @@ const SettingsState = atom<SettingsType>({
       };
     },
   ],
+});
+
+export const ThreeViewState = selector({
+  key: 'ThreeViewState',
+  get: ({ get }) => get(SettingsState).threeView,
 });
 
 type SettingsSetter = <K extends keyof SettingsType, V extends SettingsType[K]>(

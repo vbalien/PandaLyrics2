@@ -37,6 +37,19 @@ export default function Settings() {
 
   return (
     <div className="m-3">
+      <h1 className="text-base font-bold text-primary-content">가사</h1>
+      <div className="form-control">
+        <label className="label cursor-pointer">
+          <span className="label-text">앞뒤 가사 보기</span>
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            checked={settings.threeView}
+            onChange={handleChangeBool('threeView')}
+          />
+        </label>
+      </div>
+
       <h1 className="text-base font-bold text-primary-content">글자 설정</h1>
 
       <div className="form-control">
