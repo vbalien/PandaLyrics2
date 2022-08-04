@@ -8,6 +8,15 @@ ipcRenderer.on('app:addrInUse', () => {
   window.close();
 });
 
+ipcRenderer.on('app:setHistory', (_ev, songID: string, lyricID: number) => {
+  window.localStorage.setItem(`lyric_${songID}`, lyricID.toString());
+});
+
+ipcRenderer.on('app:getHistory', (_ev, songID: string) => {
+  const lyricID = window.localStorage.getItem(`lyric_${songID}`);
+  ipcRenderer.send('app:getHistory', lyricID ? Number.parseInt(lyricID) : null);
+});
+
 const pandaLyricsAPI = {
   windowMoving: (x: number, y: number) => {
     ipcRenderer.send('app:windowMoving', x, y);
@@ -85,6 +94,10 @@ const pandaLyricsAPI = {
 
   setAutoStart(value: boolean) {
     ipcRenderer.send('app:setAutoStart', value);
+  },
+
+  setWindowWidth(value: number) {
+    ipcRenderer.send('app:setWindowWidth', value);
   },
 };
 

@@ -2,6 +2,7 @@ import {
   BrowserWindow,
   BrowserWindowConstructorOptions,
   HandlerDetails,
+  ipcMain,
   screen,
 } from 'electron';
 import path from 'path';
@@ -31,7 +32,7 @@ export default class MainWindow extends BrowserWindow {
       transparent: true,
       minimizable: false,
       maximizable: false,
-      resizable: false,
+      resizable: true,
       roundedCorners: false,
       show: false,
       hasShadow: false,
@@ -132,6 +133,21 @@ export default class MainWindow extends BrowserWindow {
     this.webContents.send('dialog:openSettings');
   }
 
+  setHistory(songID: string, lyricID: number) {
+    this.webContents.send('app:setHistory', songID, lyricID);
+  }
+
+  async getHistory(songID: string) {
+    return new Promise<number | null>(resolve => {
+      const listener = (_ev: unknown, lyricID: number) => {
+        ipcMain.off('app:getHistory', listener);
+        resolve(lyricID);
+      };
+      ipcMain.on('app:getHistory', listener);
+      this.webContents.send('app:getHistory', songID);
+    });
+  }
+
   show() {
     super.show();
     this.context.trayMenu?.setVisibleCheck(true);
@@ -166,6 +182,9 @@ export default class MainWindow extends BrowserWindow {
     } else {
       lyricData = lyric;
     }
+    if (lyricData && this.currSongID) {
+      this.setHistory(this.currSongID, lyricData.lyricID);
+    }
     this.webContents.send('app:setLyric', lyricData);
     this.currLyric = lyricData;
   }
@@ -189,8 +208,16 @@ export default class MainWindow extends BrowserWindow {
     }
 
     this.context.trayMenu?.setLyrics(lyrics);
-    if (lyrics.length === 0) {
+
+    const savedLyricID = await this.getHistory(data.songID);
+
+    this.context.trayMenu?.apply();
+    if (savedLyricID) {
+      this.setLyric(savedLyricID);
+    } else if (lyrics.length === 0) {
       this.setLyric(null);
+    } else {
+      this.setLyric(lyrics[0].lyricID);
     }
   }
 

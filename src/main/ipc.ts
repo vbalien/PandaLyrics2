@@ -48,4 +48,12 @@ export function setupIpc() {
       openAtLogin: value,
     });
   });
+
+  ipcMain.on('app:setWindowWidth', (_ev, width: number) => {
+    if (!context.mainWindow) {
+      return;
+    }
+    const [, height] = context.mainWindow.getSize();
+    context.mainWindow.setSize(width, height);
+  });
 }

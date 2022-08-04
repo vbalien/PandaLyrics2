@@ -21,8 +21,8 @@ export default function LyricText({
         width: 100%;
       `}
     >
-      {text.split('\n').map(line => (
-        <Fragment key={line}>
+      {text.split('\n').map((line, idx) => (
+        <Fragment key={idx}>
           {line}
           <br />
         </Fragment>

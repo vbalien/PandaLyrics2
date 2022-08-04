@@ -9,7 +9,7 @@ export type SettingsType = {
   shadowColor: string;
   bgVisible: boolean;
   appVisible: boolean;
-  bgWidth: number;
+  winWidth: number;
   bgColor: string;
   bgAlpha: number;
   winAlpha: number;
@@ -37,7 +37,7 @@ const initialState: SettingsType = {
   shadowColor: '#000',
   bgVisible: true,
   appVisible: true,
-  bgWidth: 600,
+  winWidth: 600,
   bgColor: '#000',
   bgAlpha: 0.4,
   winAlpha: 0.95,

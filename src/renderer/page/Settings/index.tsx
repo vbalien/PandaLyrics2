@@ -108,10 +108,10 @@ export default function Settings() {
         <input
           type="range"
           min="0"
-          max="100"
-          value={settings.bgWidth}
+          max="1000"
+          value={settings.winWidth}
           className="range range-xs"
-          onChange={handleChangeNumber('bgWidth')}
+          onChange={handleChangeNumber('winWidth')}
         />
       </div>
 

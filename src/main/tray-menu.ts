@@ -42,7 +42,6 @@ export default class TrayMenu {
       },
     },
   ];
-  private _menu: Menu = new Menu();
 
   constructor(private context: AppContext) {}
 
@@ -71,13 +70,11 @@ export default class TrayMenu {
   }
 
   build(): Menu {
-    this._menu = Menu.buildFromTemplate(this.raw);
-    return this.menu;
+    return Menu.buildFromTemplate(this.raw);
   }
 
   apply(): void {
-    this.build();
-    this.context.tray?.setContextMenu(this._menu);
+    this.context.tray?.setContextMenu(this.build());
   }
 
   setLyrics(lyrics: LyricData[]) {
@@ -95,12 +92,6 @@ export default class TrayMenu {
         },
       });
     }
-
-    if (lyrics.length === 0) {
-      this.apply();
-    } else {
-      this.context.mainWindow?.setLyric(lyrics[0].lyricID);
-    }
   }
 
   setVisibleCheck(value: boolean) {
@@ -115,9 +106,5 @@ export default class TrayMenu {
     if (!menu) return;
     menu.checked = value;
     this.context.tray?.setContextMenu(this.build());
-  }
-
-  get menu() {
-    return this._menu;
   }
 }
