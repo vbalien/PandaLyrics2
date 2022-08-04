@@ -1,7 +1,7 @@
 {
   "name": "panda-lyrics",
   "version": "0.1.0",
-  "main": "./dist/main/main.ts",
+  "main": "./dist/main/main.js",
   "repository": "https://github.com/vbalien/simple-react-electron-boilerplate.git",
   "author": "Jisu Kim",
   "license": "MIT",
@@ -20,7 +20,8 @@
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "assets"
     ],
     "directories": {
       "output": "release"
@@ -57,6 +58,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/tinycolor": "^1.1.27",
     "@types/webpack": "^5.28.0",
+    "@types/webpack-node-externals": "^2.5.3",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
     "autoprefixer": "^10.4.8",
@@ -91,7 +93,8 @@
     "webpack": "^5.44.0",
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0-beta.3",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "electronmon": {
     "patterns": [

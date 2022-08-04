@@ -23,7 +23,7 @@ app.on('activate', () => {
 });
 
 app.on('ready', async () => {
-  const iconPath = path.join(__dirname, '../assets/Icon-App-20x20.png');
+  const iconPath = path.join(__dirname, '../../assets/Icon-App-20x20.png');
   const icon = nativeImage.createFromPath(iconPath);
   const tray = (context.tray = new Tray(icon));
   const trayMenu = (context.trayMenu = new TrayMenu(context));
