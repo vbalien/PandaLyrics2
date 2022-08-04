@@ -37,6 +37,7 @@ export type LyricEntities = {
   id: number;
   content: string;
   time: number;
+  current?: boolean;
 }[];
 const LyricEntitiesState = selector({
   key: 'LyricEntitiesState',
@@ -76,18 +77,23 @@ const LyricEntitiesState = selector({
   },
 });
 
-const DisplayLyricEntities = selector({
+const DisplayLyricEntities = selector<LyricEntities>({
   key: 'DisplayLyricList',
   get: ({ get }) => {
     const entities = get(LyricEntitiesState);
     const time = get(LyricTimeState);
 
-    for (const entity of entities) {
+    for (let i = 0; i < entities.length; ++i) {
+      const entity = entities[i];
       if (entity.time == 0) {
         continue;
       }
       if (entity.time <= time) {
-        return [entity];
+        return [
+          entities.at(i - 1),
+          { ...entities.at(i), current: true },
+          entities.at(i + 1),
+        ].filter(i => i !== undefined) as LyricEntities;
       }
       entity.time;
     }

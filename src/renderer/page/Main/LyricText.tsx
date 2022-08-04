@@ -2,17 +2,20 @@ import { css } from '@emotion/react';
 import { Fragment } from 'react';
 
 type LyricsTextProps = {
+  className?: string;
   textColor?: string;
   shadowColor?: string;
   text: string;
 };
 export default function LyricText({
+  className,
   textColor = '#fff',
   shadowColor = '#000',
   text,
 }: LyricsTextProps) {
   return (
     <div
+      className={className}
       css={css`
         word-wrap: break-word;
         color: ${textColor};
