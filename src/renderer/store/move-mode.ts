@@ -20,6 +20,6 @@ const MoveModeState = atom({
   ],
 });
 
-export default function useMoveMode() {
+export function useMoveMode() {
   return useRecoilState(MoveModeState);
 }

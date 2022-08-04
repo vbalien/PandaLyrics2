@@ -1,4 +1,4 @@
-import { app, ipcMain, Menu, MenuItem, screen } from 'electron';
+import { app, ipcMain, screen } from 'electron';
 import { getFonts } from 'font-list';
 import { context } from './context';
 
@@ -22,29 +22,6 @@ export function setupIpc() {
 
   ipcMain.on('app:setVisible', (_ev, value: boolean) => {
     context.mainWindow?.setVisible(value);
-  });
-
-  ipcMain.on('app:clearLyrics', () => {
-    const menu = context.trayMenu?.getItem('lyrics');
-    if (!menu) return;
-    menu.submenu = [];
-    context.trayMenu?.apply();
-  });
-
-  ipcMain.on('app:setLyrics', (_ev, lyrics: LyricInfo[]) => {
-    const menu = context.trayMenu?.getItem('lyrics');
-    if (!menu) return;
-
-    menu.submenu = new Menu();
-    for (const info of lyrics) {
-      menu.submenu.append(
-        new MenuItem({
-          label: info.title,
-          type: 'radio',
-        })
-      );
-    }
-    context.trayMenu?.apply();
   });
 
   ipcMain.on('app:updateHeight', (_ev, height: number) => {

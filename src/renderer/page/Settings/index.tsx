@@ -1,7 +1,12 @@
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { ColorResult } from 'react-color';
-import { useSettings } from '../../store/settings';
+import {
+  SettingsBoolType,
+  SettingsColorType,
+  SettingsNumberType,
+  useSettings,
+} from '../../store/settings';
 import ColorPicker from './ColorPicker';
 
 export default function Settings() {

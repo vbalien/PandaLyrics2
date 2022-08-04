@@ -1,11 +1,12 @@
 import { css } from '@emotion/react';
+import { Fragment } from 'react';
 
 type LyricsTextProps = {
   textColor?: string;
   shadowColor?: string;
   text: string;
 };
-export default function LyricsText({
+export default function LyricText({
   textColor = '#fff',
   shadowColor = '#000',
   text,
@@ -20,7 +21,12 @@ export default function LyricsText({
         width: 100%;
       `}
     >
-      {text}
+      {text.split('\n').map(line => (
+        <Fragment key={line}>
+          {line}
+          <br />
+        </Fragment>
+      ))}
     </div>
   );
 }

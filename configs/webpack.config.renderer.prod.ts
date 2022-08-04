@@ -15,7 +15,7 @@ export default merge(baseConfig, {
   entry: path.join(__dirname, '../src/renderer/index.tsx'),
 
   output: {
-    path: path.join(__dirname, '../dist/renderer'),
+    path: path.join(__dirname, '../app/dist/renderer'),
     filename: 'index.js',
     publicPath: './',
     library: {

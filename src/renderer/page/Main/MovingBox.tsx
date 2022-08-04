@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import { ReactNode, useEffect, useRef } from 'react';
 import { useSettings } from '../../store/settings';
-import useMoveMode from '../../store/move-mode';
+import { useMoveMode } from '../../store/move-mode';
 
 type MovingBoxProps = {
   children: ReactNode;

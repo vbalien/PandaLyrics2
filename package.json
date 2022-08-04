@@ -1,25 +1,26 @@
 {
   "name": "panda-lyrics",
   "version": "0.1.0",
-  "main": "./src/main/main.ts",
+  "main": "./dist/main/main.ts",
   "repository": "https://github.com/vbalien/simple-react-electron-boilerplate.git",
   "author": "Jisu Kim",
   "license": "MIT",
   "scripts": {
     "start": "yarn start:renderer",
-    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
+    "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only  ./src/main/main.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./configs/webpack.config.renderer.dev.ts",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.preload.dev.ts",
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.renderer.prod.ts",
-    "package": "shx rm -rf ./dist && yarn build && electron-builder build --publish never"
+    "package": "shx rm -rf ./app/dist && yarn build && electron-builder build --publish never",
+    "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "files": [
-      "dist/",
-      "package.json",
-      "src/assets/"
+      "dist",
+      "node_modules",
+      "package.json"
     ],
     "directories": {
       "output": "release"
@@ -29,6 +30,18 @@
         "nsis"
       ]
     }
+  },
+  "dependencies": {
+    "@babel/core": "^7.14.6",
+    "@emotion/react": "^11.10.0",
+    "fast-xml-parser": "^4.0.9",
+    "font-list": "^1.4.5",
+    "react": "^18.2.0",
+    "react-color": "^2.19.3",
+    "react-dom": "^18.2.0",
+    "recoil": "^0.7.4",
+    "tinycolor": "^0.0.1",
+    "ws": "^8.8.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.14.7",
@@ -78,16 +91,6 @@
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^4.0.0-beta.3",
     "webpack-merge": "^5.8.0"
-  },
-  "dependencies": {
-    "@babel/core": "^7.14.6",
-    "@emotion/react": "^11.10.0",
-    "font-list": "^1.4.5",
-    "react": "^18.2.0",
-    "react-color": "^2.19.3",
-    "react-dom": "^18.2.0",
-    "recoil": "^0.7.4",
-    "tinycolor": "^0.0.1"
   },
   "electronmon": {
     "patterns": [

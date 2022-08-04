@@ -6,10 +6,9 @@ export default function useAppInitialEffect() {
   useEffect(() => {
     window.pandaLyricsAPI.setVisible(settings.appVisible);
     window.pandaLyricsAPI.setWindowPos(settings.windowLeft, settings.windowTop);
-    const callback = (val: boolean) => {
+    const unSub = window.pandaLyricsAPI.onSetVisible((val: boolean) => {
       setSettings('appVisible', val);
-    };
-    const unSub = window.pandaLyricsAPI.onSetVisible(callback);
+    });
     return () => {
       unSub();
     };

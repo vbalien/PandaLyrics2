@@ -1,4 +1,5 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
+import { LyricData } from './alsong';
 import { Separator } from './menu';
 import { AppContext } from './types';
 
@@ -54,6 +55,21 @@ export default class TrayMenu {
     return null;
   }
 
+  setLyricsItemCheck(id: string) {
+    const lyricsMenu = this.getItem('lyrics');
+    if (!lyricsMenu?.submenu || !(lyricsMenu?.submenu instanceof Array)) {
+      return;
+    }
+    for (const item of lyricsMenu.submenu) {
+      if (item.id === id) {
+        item.checked = true;
+      } else {
+        item.checked = false;
+      }
+    }
+    this.apply();
+  }
+
   build(): Menu {
     this._menu = Menu.buildFromTemplate(this.raw);
     return this.menu;
@@ -62,6 +78,43 @@ export default class TrayMenu {
   apply(): void {
     this.build();
     this.context.tray?.setContextMenu(this._menu);
+  }
+
+  setLyrics(lyrics: LyricData[]) {
+    const menu = this.getItem('lyrics');
+    if (!menu) return;
+
+    menu.submenu = [];
+    for (const lyric of lyrics) {
+      menu.submenu.push({
+        id: lyric.lyricID.toString(),
+        label: `${lyric.title} - ${lyric.artist} [${lyric.album}]`,
+        type: 'radio',
+        click: menuItem => {
+          this.context.mainWindow?.setLyric(Number.parseInt(menuItem.id));
+        },
+      });
+    }
+
+    if (lyrics.length === 0) {
+      this.apply();
+    } else {
+      this.context.mainWindow?.setLyric(lyrics[0].lyricID);
+    }
+  }
+
+  setVisibleCheck(value: boolean) {
+    const menu = this.getItem('appVisible');
+    if (!menu) return;
+    menu.checked = value;
+    this.context.tray?.setContextMenu(this.build());
+  }
+
+  setMoveModeCheck(value: boolean) {
+    const menu = this.getItem('moveMode');
+    if (!menu) return;
+    menu.checked = value;
+    this.context.tray?.setContextMenu(this.build());
   }
 
   get menu() {

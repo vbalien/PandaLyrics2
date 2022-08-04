@@ -5,7 +5,10 @@ import {
   screen,
 } from 'electron';
 import path from 'path';
+import { WebSocketServer } from 'webpack-dev-server';
+import { getLyricById, getLyricList, LyricDetailData } from './alsong';
 import { AppContext } from './types';
+import { setupWebsocket, SongChangeMessage, TickMessage } from './websocket';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -16,6 +19,10 @@ export default class MainWindow extends BrowserWindow {
   static PageUrl = isDevelopment
     ? 'http://localhost:8080/'
     : `file://${path.join(__dirname, '../renderer/index.html')}`;
+  private wss?: WebSocketServer;
+  private currSongID?: string;
+  private currTime?: number;
+  private currLyric: LyricDetailData | null = null;
 
   constructor(private context: AppContext) {
     const primaryDisplay = screen.getPrimaryDisplay();
@@ -46,8 +53,9 @@ export default class MainWindow extends BrowserWindow {
     this.setMenuBarVisibility(false);
 
     this.on('closed', this.onClosed.bind(this));
+    this.on('ready-to-show', this.onReadyToShow.bind(this));
     this.webContents.on('devtools-opened', this.onDevtoolsOpened.bind(this));
-    this.webContents.setWindowOpenHandler(this.windowOpenHandler.bind(this));
+    this.webContents.setWindowOpenHandler(this.onWindowOpen.bind(this));
 
     if (isDevelopment) {
       this.webContents.openDevTools();
@@ -56,9 +64,26 @@ export default class MainWindow extends BrowserWindow {
     const pageUrl = new URL(MainWindow.PageUrl);
     pageUrl.hash = '#main';
     this.loadURL(pageUrl.href);
+
+    process.on('uncaughtException', (err: Error & { errno: string }) => {
+      if (err.errno === 'EADDRINUSE') {
+        this.webContents.send('app:addrInUse');
+      } else {
+        console.log(err);
+      }
+      process.exit(1);
+    });
   }
 
-  windowOpenHandler(handlerDetails: HandlerDetails) {
+  private onReadyToShow() {
+    this.wss = setupWebsocket({
+      songChangeEvent: this.onSongChange.bind(this),
+      tickEvent: this.onTick.bind(this),
+      closeEvent: this.onWsClose.bind(this),
+    });
+  }
+
+  private onWindowOpen(handlerDetails: HandlerDetails) {
     const pageUrl = new URL(MainWindow.PageUrl);
     const handleUrl = new URL(handlerDetails.url);
 
@@ -81,44 +106,40 @@ export default class MainWindow extends BrowserWindow {
     return { action: 'deny' as const };
   }
 
-  onClosed() {
+  close() {
+    this.wss?.close();
+    super.close();
+  }
+
+  private onClosed() {
     this.context.mainWindow = null;
   }
 
-  onDevtoolsOpened() {
+  private onDevtoolsOpened() {
     this.focus();
   }
 
   setMoveMode(value: boolean, request?: boolean) {
     this.setIgnoreMouseEvents(!value);
-    const menu = this.context.trayMenu?.getItem('moveMode');
-    if (!menu || !this.context.trayMenu) return;
-    menu.checked = value;
-    this.context.tray?.setContextMenu(this.context.trayMenu.build());
+    this.context.trayMenu?.setMoveModeCheck(value);
 
     if (request) {
-      this.context.mainWindow?.webContents.send('app:setMove', value);
+      this.webContents.send('app:setMove', value);
     }
   }
 
   requestSettingsOpen() {
-    this.context.mainWindow?.webContents.send('dialog:openSettings');
+    this.webContents.send('dialog:openSettings');
   }
 
   show() {
     super.show();
-    const menu = this.context.trayMenu?.getItem('appVisible');
-    if (!menu || !this.context.trayMenu) return;
-    menu.checked = true;
-    this.context.tray?.setContextMenu(this.context.trayMenu.build());
+    this.context.trayMenu?.setVisibleCheck(true);
   }
 
   hide() {
     super.hide();
-    const menu = this.context.trayMenu?.getItem('appVisible');
-    if (!menu || !this.context.trayMenu) return;
-    menu.checked = false;
-    this.context.tray?.setContextMenu(this.context.trayMenu.build());
+    this.context.trayMenu?.setVisibleCheck(false);
   }
 
   setVisible(value: boolean, request?: boolean) {
@@ -128,7 +149,60 @@ export default class MainWindow extends BrowserWindow {
       this.hide();
     }
     if (request) {
-      this.context.mainWindow?.webContents.send('app:setVisible', value);
+      this.webContents.send('app:setVisible', value);
     }
+  }
+
+  async setLyric(lyric: number | LyricDetailData | null) {
+    let lyricData: LyricDetailData | null;
+    if (lyric === null) {
+      this.webContents.send('app:setLyric', null);
+      return;
+    }
+
+    if (typeof lyric === 'number') {
+      this.context.trayMenu?.setLyricsItemCheck(lyric.toString());
+      lyricData = await getLyricById(lyric);
+    } else {
+      lyricData = lyric;
+    }
+    this.webContents.send('app:setLyric', lyricData);
+    this.currLyric = lyricData;
+  }
+
+  private async onSongChange({ data }: SongChangeMessage) {
+    if (this.currSongID === data.songID) {
+      this.setLyric(this.currLyric);
+      return;
+    }
+    this.currSongID = data.songID;
+
+    let lyrics = await getLyricList({
+      title: data.title,
+      artist: data.artist,
+    });
+
+    if (lyrics.length === 0) {
+      lyrics = await getLyricList({
+        title: data.title,
+      });
+    }
+
+    this.context.trayMenu?.setLyrics(lyrics);
+    if (lyrics.length === 0) {
+      this.setLyric(null);
+    }
+  }
+
+  private onTick({ data: { time } }: TickMessage) {
+    if (this.currTime === time) {
+      return;
+    }
+    this.currTime = time;
+    this.webContents.send('app:tick', time);
+  }
+
+  private onWsClose() {
+    this.setLyric(null);
   }
 }

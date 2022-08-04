@@ -1,7 +1,37 @@
-import { useCallback } from 'react';
 import { atom, useRecoilState } from 'recoil';
 
-const initialState = {
+export type SettingsType = {
+  fontFamily?: string;
+  fontSize: number;
+  windowLeft?: number;
+  windowTop?: number;
+  fontColor: string;
+  shadowColor: string;
+  bgVisible: boolean;
+  appVisible: boolean;
+  bgWidth: number;
+  bgColor: string;
+  bgAlpha: number;
+  winAlpha: number;
+};
+type PostFixFilter<T, F extends string> = keyof T extends infer K
+  ? K extends `${string}${F}`
+    ? K
+    : never
+  : never;
+type TypeFilter<T, F> = {
+  [K in keyof T]: T[K] extends F ? K : never;
+}[keyof T] extends infer R
+  ? R extends undefined
+    ? never
+    : R
+  : never;
+
+export type SettingsColorType = PostFixFilter<SettingsType, 'Color'>;
+export type SettingsNumberType = TypeFilter<SettingsType, number | undefined>;
+export type SettingsBoolType = TypeFilter<SettingsType, boolean>;
+
+const initialState: SettingsType = {
   fontSize: 14,
   fontColor: '#fff',
   shadowColor: '#000',
@@ -52,15 +82,16 @@ type SettingsSetter = <K extends keyof SettingsType, V extends SettingsType[K]>(
 ) => void;
 export function useSettings(): [SettingsType, SettingsSetter] {
   const [state, setState] = useRecoilState(SettingsState);
-  const setter = useCallback<SettingsSetter>(
-    (key, value) => {
-      if (typeof key === 'string') {
-        setState({ ...state, [key]: value });
-      } else {
-        setState({ ...state, ...key });
-      }
-    },
-    [setState, state]
-  );
+  const setter: SettingsSetter = (key, value) => {
+    if (typeof key === 'string') {
+      setState(currVal => {
+        return { ...currVal, [key]: value };
+      });
+    } else {
+      setState(currVal => {
+        return { ...currVal, ...key };
+      });
+    }
+  };
   return [state, setter];
 }

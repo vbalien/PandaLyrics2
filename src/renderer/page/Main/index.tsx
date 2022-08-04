@@ -1,10 +1,12 @@
 import { css, Global } from '@emotion/react';
+import { useLyric } from '../../store/lyric';
 import useAppInitialEffect from '../../hooks/use-app-initial-effect';
 import useOpenSettingsEffect from '../../hooks/use-open-settings-effect';
-import Lyrics from './Lyrics';
+import Lyric from './Lyric';
 import MovingBox from './MovingBox';
 
 export default function Main() {
+  const lyric = useLyric();
   useOpenSettingsEffect();
   useAppInitialEffect();
 
@@ -18,9 +20,7 @@ export default function Main() {
           }
         `}
       />
-      <MovingBox>
-        <Lyrics />
-      </MovingBox>
+      <MovingBox>{lyric && <Lyric />}</MovingBox>
     </>
   );
 }
