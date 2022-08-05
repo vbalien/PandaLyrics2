@@ -1,13 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 import { LyricDetailData } from './alsong';
 
-ipcRenderer.on('app:addrInUse', () => {
-  alert(
-    '8999포트가 이미 사용중입니다!\n이미 이 프로그램이 실행중인지 확인해주세요!'
-  );
-  window.close();
-});
-
 ipcRenderer.on('app:setHistory', (_ev, songID: string, lyricID: number) => {
   window.localStorage.setItem(`lyric_${songID}`, lyricID.toString());
 });

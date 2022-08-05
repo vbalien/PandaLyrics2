@@ -1,5 +1,6 @@
 import { app, Menu, MenuItemConstructorOptions } from 'electron';
 import { LyricData } from './alsong';
+import { checkExtension, installExtension } from './extension-installer';
 import { Separator } from './menu';
 import { AppContext } from './types';
 
@@ -45,13 +46,35 @@ export default class TrayMenu {
 
   constructor(private context: AppContext) {}
 
-  getItem(id: string): MenuItemConstructorOptions | null {
-    for (const item of this.raw) {
-      if (item.id === id) {
-        return item;
+  async updateInstallMenu() {
+    const installMenuIdx = this.raw.findIndex(item => item.id === 'install');
+    const settingsMenuIdx = this.raw.findIndex(item => item.id === 'settings');
+
+    if (!(await checkExtension())) {
+      if (settingsMenuIdx === -1 || installMenuIdx !== -1) {
+        return;
       }
+      this.raw.splice(settingsMenuIdx + 1, 0, {
+        label: 'extension 설치',
+        type: 'normal',
+        id: 'install',
+        click: async () => {
+          await installExtension();
+          this.updateInstallMenu();
+        },
+      });
+      this.apply();
+    } else {
+      if (installMenuIdx === -1) {
+        return;
+      }
+      this.raw.splice(installMenuIdx, 1);
+      this.apply();
     }
-    return null;
+  }
+
+  getItem(id: string): MenuItemConstructorOptions | undefined {
+    return this.raw.find(item => item.id === id);
   }
 
   setLyricsItemCheck(id: string) {

@@ -73,6 +73,7 @@ export default class MainWindow extends BrowserWindow {
       tickEvent: this.onTick.bind(this),
       closeEvent: this.onWsClose.bind(this),
     });
+    this.context.trayMenu?.updateInstallMenu();
   }
 
   private onWindowOpen(handlerDetails: HandlerDetails) {
