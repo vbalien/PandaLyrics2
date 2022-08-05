@@ -13,7 +13,7 @@ export type SettingsType = {
   bgColor: string;
   bgAlpha: number;
   winAlpha: number;
-  threeView?: boolean;
+  threeView: boolean;
 };
 type PostFixFilter<T, F extends string> = keyof T extends infer K
   ? K extends `${string}${F}`
@@ -38,10 +38,11 @@ const initialState: SettingsType = {
   shadowColor: '#000',
   bgVisible: true,
   appVisible: true,
-  winWidth: 600,
+  winWidth: 450,
   bgColor: '#000',
   bgAlpha: 0.4,
   winAlpha: 0.95,
+  threeView: true,
 };
 const LOCAL_STORAGE_KEY = 'settings';
 const SettingsState = atom<SettingsType>({

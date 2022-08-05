@@ -93,9 +93,9 @@ const DisplayLyricEntities = selector<LyricEntities>({
       if (entity.time <= time) {
         if (threeView) {
           return [
-            entities.at(i - 1),
-            { ...entities.at(i), current: true },
-            entities.at(i + 1),
+            entities[i - 1],
+            { ...entities[i], current: true },
+            entities[i + 1],
           ].filter(i => i !== undefined) as LyricEntities;
         } else {
           return [{ ...entities.at(i), current: true }] as LyricEntities;

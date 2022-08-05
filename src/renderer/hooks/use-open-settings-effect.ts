@@ -6,6 +6,7 @@ export default function useOpenSettingsEffect() {
   useEffect(() => {
     const callback = () => {
       if (win.current !== null && !win.current.closed) {
+        win.current.focus();
         return;
       }
       const url = new URL(window.location.href);

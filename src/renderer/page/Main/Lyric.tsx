@@ -69,7 +69,7 @@ export default function Lyric() {
         position: relative;
         overflow: hidden;
         text-align: center;
-        min-height: 100px;
+        min-height: 50px;
         height: ${lyricHeight}px;
         font-weight: bold;
         opacity: ${settings.winAlpha};

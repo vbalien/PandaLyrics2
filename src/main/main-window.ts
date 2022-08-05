@@ -65,15 +65,6 @@ export default class MainWindow extends BrowserWindow {
     const pageUrl = new URL(MainWindow.PageUrl);
     pageUrl.hash = '#main';
     this.loadURL(pageUrl.href);
-
-    process.on('uncaughtException', (err: Error & { errno: string }) => {
-      if (err.errno === 'EADDRINUSE') {
-        this.webContents.send('app:addrInUse');
-      } else {
-        console.log(err);
-      }
-      process.exit(1);
-    });
   }
 
   private onReadyToShow() {
