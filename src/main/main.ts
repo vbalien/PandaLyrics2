@@ -1,5 +1,6 @@
 import { app, nativeImage, Tray } from 'electron';
 import path from 'path';
+import fixPath from 'fix-path';
 import PandaLyricsWindow from './main-window';
 import { setApplicationMenu } from './menu';
 import { setupIpc } from './ipc';
@@ -11,6 +12,8 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
+  fixPath();
+
   if (process.platform === 'darwin') {
     app.dock.hide();
   }

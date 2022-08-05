@@ -1,4 +1,3 @@
-import commandExists from 'command-exists';
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -8,10 +7,6 @@ import { context } from './context';
 
 async function getSpicetifyConfigPath() {
   return new Promise<string>((resolve, reject) => {
-    if (!commandExists.sync('spicetify')) {
-      reject(Error("'spicetify'명령어를 찾지 못했습니다."));
-    }
-
     exec('spicetify -c', function (error, stdout) {
       if (error) {
         reject(Error(error.message));
