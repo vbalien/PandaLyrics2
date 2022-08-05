@@ -141,7 +141,7 @@ export default class MainWindow extends BrowserWindow {
   }
 
   show() {
-    super.show();
+    super.showInactive();
     this.context.trayMenu?.setVisibleCheck(true);
   }
 
