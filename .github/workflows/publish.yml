@@ -1,9 +1,9 @@
 name: Publish
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [master]
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -33,4 +33,4 @@ jobs:
         run: |
           yarn postinstall
           yarn build
-          yarn electron-builder --publish onTag
+          yarn electron-builder --publish
