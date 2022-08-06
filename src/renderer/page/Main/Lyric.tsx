@@ -96,7 +96,8 @@ export default function Lyric() {
               left: settings.fontSize / 2,
               right: settings.fontSize / 2,
               opacity,
-              height: entity.height * settings.fontSize,
+              height: (entity.height + 0.375) * settings.fontSize,
+              padding: '0.1875em',
               overflow: 'hidden',
               transform: settings.threeView ? transform : undefined,
             }}

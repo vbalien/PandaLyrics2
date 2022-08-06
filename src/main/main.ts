@@ -3,7 +3,6 @@ import path from 'path';
 import fixPath from 'fix-path';
 import PandaLyricsWindow from './main-window';
 import { setApplicationMenu } from './menu';
-import { setupIpc } from './ipc';
 import { context } from './context';
 import TrayMenu from './tray-menu';
 
@@ -38,7 +37,6 @@ if (!gotTheLock) {
     tray.setContextMenu(trayMenu.build());
     tray.setToolTip('PandaLyrics');
 
-    setupIpc();
     context.mainWindow = new PandaLyricsWindow(context);
     setApplicationMenu();
   });

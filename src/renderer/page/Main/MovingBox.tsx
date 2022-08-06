@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useRef } from 'react';
 import { useSettings } from '../../store/settings';
 import { useMoveMode } from '../../store/move-mode';
 
@@ -17,18 +17,6 @@ export default function MovingBox({ children }: MovingBoxProps) {
     }
   };
 
-  useEffect(() => {
-    if (moveMode) {
-      return;
-    }
-    const [x, y] = window.pandaLyricsAPI.getWindowPos();
-    setSettings({
-      windowLeft: x,
-      windowTop: y,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [moveMode]);
-
   const onMouseDown: React.MouseEventHandler<HTMLElement> = e => {
     mouse.current.x = e.clientX;
     mouse.current.y = e.clientY;
@@ -42,6 +30,13 @@ export default function MovingBox({ children }: MovingBoxProps) {
 
   const onDblClick = () => {
     mouse.current.isDown = false;
+
+    const [x, y] = window.pandaLyricsAPI.getWindowPos();
+    setSettings({
+      windowLeft: x,
+      windowTop: y,
+    });
+
     setMoveMode(false);
   };
 

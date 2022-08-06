@@ -8,6 +8,7 @@ import {
 import path from 'path';
 import { WebSocketServer } from 'webpack-dev-server';
 import { getLyricById, getLyricList, LyricDetailData } from './alsong';
+import { setupIpc } from './ipc';
 import { AppContext } from './types';
 import { setupWebsocket, SongChangeMessage, TickMessage } from './websocket';
 
@@ -42,9 +43,9 @@ export default class MainWindow extends BrowserWindow {
       },
       useContentSize: true,
       width: 600,
-      height: 150,
+      height: 300,
       x: primaryDisplay.size.width - 600 - 30,
-      y: primaryDisplay.size.height - 150 - 30,
+      y: primaryDisplay.size.height - 300 - 30,
     });
 
     this.setAlwaysOnTop(true, 'screen-saver');
@@ -56,6 +57,7 @@ export default class MainWindow extends BrowserWindow {
     this.on('closed', this.onClosed.bind(this));
     this.on('ready-to-show', this.onReadyToShow.bind(this));
     this.webContents.on('devtools-opened', this.onDevtoolsOpened.bind(this));
+    this.webContents.on('destroyed', this.onWebDestroyed.bind(this));
     this.webContents.setWindowOpenHandler(this.onWindowOpen.bind(this));
 
     if (isDevelopment) {
@@ -68,6 +70,7 @@ export default class MainWindow extends BrowserWindow {
   }
 
   private onReadyToShow() {
+    setupIpc();
     this.wss = setupWebsocket({
       songChangeEvent: this.onSongChange.bind(this),
       tickEvent: this.onTick.bind(this),
@@ -99,9 +102,8 @@ export default class MainWindow extends BrowserWindow {
     return { action: 'deny' as const };
   }
 
-  close() {
+  private onWebDestroyed() {
     this.wss?.close();
-    super.close();
   }
 
   private onClosed() {
@@ -214,7 +216,7 @@ export default class MainWindow extends BrowserWindow {
   }
 
   private onTick({ data: { time } }: TickMessage) {
-    if (this.currTime === time) {
+    if (this.currTime === time || !this.webContents) {
       return;
     }
     this.currTime = time;
