@@ -33,4 +33,4 @@ jobs:
         run: |
           yarn postinstall
           yarn build
-          yarn electron-builder --publish onTagOrDraft
+          yarn electron-builder --publish always
