@@ -5,6 +5,7 @@ import { Separator } from './menu';
 import { AppContext } from './types';
 
 export default class TrayMenu {
+  private _menu?: Menu;
   private raw: MenuItemConstructorOptions[] = [
     {
       label: '표시',
@@ -92,8 +93,13 @@ export default class TrayMenu {
     this.apply();
   }
 
-  build(): Menu {
-    return Menu.buildFromTemplate(this.raw);
+  get menu() {
+    return this._menu;
+  }
+
+  private build(): Menu {
+    this._menu = Menu.buildFromTemplate(this.raw);
+    return this._menu;
   }
 
   apply(): void {
@@ -109,6 +115,17 @@ export default class TrayMenu {
       menu.submenu.push({
         id: lyric.lyricID.toString(),
         label: `${lyric.title} - ${lyric.artist} [${lyric.album}]`,
+        type: 'radio',
+        click: menuItem => {
+          this.context.mainWindow?.setLyric(Number.parseInt(menuItem.id));
+        },
+      });
+    }
+
+    if (lyrics.length > 0) {
+      menu.submenu.push({
+        id: '-1',
+        label: `선택 안함`,
         type: 'radio',
         click: menuItem => {
           this.context.mainWindow?.setLyric(Number.parseInt(menuItem.id));

@@ -34,8 +34,11 @@ if (!gotTheLock) {
     const icon = nativeImage.createFromPath(iconPath);
     const tray = (context.tray = new Tray(icon));
     const trayMenu = (context.trayMenu = new TrayMenu(context));
-    tray.setContextMenu(trayMenu.build());
+    trayMenu.apply();
     tray.setToolTip('PandaLyrics');
+    tray.on('double-click', () => {
+      context.trayMenu?.menu?.getMenuItemById('appVisible')?.click();
+    });
 
     context.mainWindow = new PandaLyricsWindow(context);
     setApplicationMenu();

@@ -10,7 +10,12 @@ import { WebSocketServer } from 'webpack-dev-server';
 import { getLyricById, getLyricList, LyricDetailData } from './alsong';
 import { setupIpc } from './ipc';
 import { AppContext } from './types';
-import { setupWebsocket, SongChangeMessage, TickMessage } from './websocket';
+import {
+  setupWebsocket,
+  ChangeSongMessage,
+  TickMessage,
+  ChangeStateMessage,
+} from './websocket';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -57,7 +62,7 @@ export default class MainWindow extends BrowserWindow {
     this.on('closed', this.onClosed.bind(this));
     this.on('ready-to-show', this.onReadyToShow.bind(this));
     this.webContents.on('devtools-opened', this.onDevtoolsOpened.bind(this));
-    this.webContents.on('destroyed', this.onWebDestroyed.bind(this));
+    this.on('close', this.onClose.bind(this));
     this.webContents.setWindowOpenHandler(this.onWindowOpen.bind(this));
 
     if (isDevelopment) {
@@ -72,7 +77,8 @@ export default class MainWindow extends BrowserWindow {
   private onReadyToShow() {
     setupIpc();
     this.wss = setupWebsocket({
-      songChangeEvent: this.onSongChange.bind(this),
+      changeSongEvent: this.onChangeSong.bind(this),
+      changeStateEvent: this.onChangeState.bind(this),
       tickEvent: this.onTick.bind(this),
       closeEvent: this.onWsClose.bind(this),
     });
@@ -102,7 +108,7 @@ export default class MainWindow extends BrowserWindow {
     return { action: 'deny' as const };
   }
 
-  private onWebDestroyed() {
+  private onClose() {
     this.wss?.close();
   }
 
@@ -165,58 +171,75 @@ export default class MainWindow extends BrowserWindow {
 
   async setLyric(lyric: number | LyricDetailData | null) {
     let lyricData: LyricDetailData | null;
-    if (lyric === null) {
+    if (lyric === null || !this.currSongID) {
       this.webContents.send('app:setLyric', null);
       return;
     }
 
     if (typeof lyric === 'number') {
       this.context.trayMenu?.setLyricsItemCheck(lyric.toString());
-      lyricData = await getLyricById(lyric);
+      if (lyric === -1) {
+        lyricData = null;
+      } else {
+        lyricData = await getLyricById(lyric);
+      }
     } else {
       lyricData = lyric;
     }
-    if (lyricData && this.currSongID) {
+
+    if (lyricData) {
       this.setHistory(this.currSongID, lyricData.lyricID);
+    } else if (lyric === -1) {
+      this.setHistory(this.currSongID, lyric);
     }
     this.webContents.send('app:setLyric', lyricData);
     this.currLyric = lyricData;
   }
-
-  private async onSongChange({ data }: SongChangeMessage) {
-    if (this.currSongID === data.songID) {
-      this.setLyric(this.currLyric);
-      return;
-    }
-    this.currSongID = data.songID;
-
-    let lyrics = await getLyricList({
-      title: data.title,
-      artist: data.artist,
-    });
-
-    if (lyrics.length === 0) {
-      lyrics = await getLyricList({
-        title: data.title,
-      });
-    }
-
-    this.context.trayMenu?.setLyrics(lyrics);
-
-    const savedLyricID = await this.getHistory(data.songID);
-
-    this.context.trayMenu?.apply();
-    if (savedLyricID) {
-      this.setLyric(savedLyricID);
-    } else if (lyrics.length === 0) {
+  private async onChangeState({ data }: ChangeStateMessage) {
+    if (data.is_paused) {
       this.setLyric(null);
     } else {
-      this.setLyric(lyrics[0].lyricID);
+      this.setLyric(this.currLyric);
+    }
+  }
+
+  private async onChangeSong({ data }: ChangeSongMessage) {
+    if (this.currSongID === data.songID) {
+      await this.setLyric(this.currLyric);
+    } else {
+      this.currSongID = data.songID;
+
+      let lyrics = await getLyricList({
+        title: data.title,
+        artist: data.artist,
+      });
+
+      if (lyrics.length === 0) {
+        lyrics = await getLyricList({
+          title: data.title,
+        });
+      }
+
+      this.context.trayMenu?.setLyrics(lyrics);
+
+      const savedLyricID = await this.getHistory(data.songID);
+
+      this.context.trayMenu?.apply();
+      if (savedLyricID) {
+        await this.setLyric(savedLyricID);
+      } else if (lyrics.length === 0) {
+        await this.setLyric(null);
+      } else {
+        await this.setLyric(lyrics[0].lyricID);
+      }
+    }
+    if (data.is_paused) {
+      await this.setLyric(null);
     }
   }
 
   private onTick({ data: { time } }: TickMessage) {
-    if (this.currTime === time || !this.webContents) {
+    if (!this || this.currTime === time || !this.webContents) {
       return;
     }
     this.currTime = time;

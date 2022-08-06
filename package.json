@@ -13,7 +13,7 @@
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./configs/webpack.config.renderer.prod.ts",
-    "package": "shx rm -rf ./app/dist && yarn build && electron-builder build --publish never",
+    "package": "shx rm -rf ./app/dist ./release && yarn build && electron-builder build --publish never",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {

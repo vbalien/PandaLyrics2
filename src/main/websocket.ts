@@ -4,12 +4,19 @@ type MessageBase<T, D> = {
   type: T;
   data: D;
 };
-export type SongChangeMessage = MessageBase<
+export type ChangeSongMessage = MessageBase<
   'songchange',
   {
     title: string;
     artist: string;
     songID: string;
+    is_paused: boolean;
+  }
+>;
+export type ChangeStateMessage = MessageBase<
+  'statechange',
+  {
+    is_paused: boolean;
   }
 >;
 export type TickMessage = MessageBase<
@@ -18,11 +25,12 @@ export type TickMessage = MessageBase<
     time: number;
   }
 >;
-export type Message = SongChangeMessage | TickMessage;
+export type Message = ChangeSongMessage | ChangeStateMessage | TickMessage;
 
 export function setupWebsocket(options: {
-  songChangeEvent: (msg: SongChangeMessage) => void;
+  changeSongEvent: (msg: ChangeSongMessage) => void;
   tickEvent: (msg: TickMessage) => void;
+  changeStateEvent: (msg: ChangeStateMessage) => void;
   closeEvent: () => void;
 }) {
   const wss = new WebSocketServer({ port: 8999 });
@@ -31,7 +39,10 @@ export function setupWebsocket(options: {
       const msg = JSON.parse(data.toString('utf8')) as Message;
       switch (msg.type) {
         case 'songchange':
-          options.songChangeEvent(msg);
+          options.changeSongEvent(msg);
+          break;
+        case 'statechange':
+          options.changeStateEvent(msg);
           break;
         case 'tick':
           options.tickEvent(msg);
