@@ -17,6 +17,9 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
+    "productName": "PandaLyrics",
+    "appId": "moe.alien.PandaLyrics",
+    "asar": true,
     "files": [
       "dist",
       "node_modules",
@@ -28,19 +31,48 @@
     },
     "win": {
       "target": [
-        "nsis"
-      ]
-    },
-    "mac": {
-      "target": [
         {
-          "target": "default",
+          "target": "nsis",
           "arch": [
             "x64",
             "arm64"
           ]
         }
       ]
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "vbalien",
+      "repo": "PandaLyrics2"
     }
   },
   "dependencies": {
