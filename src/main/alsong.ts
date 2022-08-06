@@ -1,5 +1,6 @@
 import http from 'http';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
+import SqlString from 'sqlstring';
 
 export type LyricData = {
   lyricID: number;
@@ -47,6 +48,11 @@ async function alsongRequest(action: string, body: Json) {
           },
         },
         res => {
+          if (res.statusCode !== 200) {
+            reject(res.statusMessage);
+            return;
+          }
+
           const chunks: Buffer[] = [];
           res.on('data', data => {
             chunks.push(data);
@@ -91,8 +97,8 @@ export async function getLyricList({
       '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0',
     'ns1:pageNo': 1,
   };
-  title && (body['ns1:title'] = title);
-  artist && (body['ns1:artist'] = artist);
+  title && (body['ns1:title'] = SqlString.escape(title));
+  artist && (body['ns1:artist'] = SqlString.escape(artist));
   const json = await alsongRequest('GetResembleLyricList2', body);
   if (
     typeof json.result !== 'object' ||
