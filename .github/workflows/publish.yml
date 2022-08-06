@@ -12,6 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install rpmbuild
+        run: |
+          brew update
+          brew install rpm
+          brew upgrade
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
