@@ -2,8 +2,8 @@
   "name": "panda-lyrics",
   "version": "0.1.0",
   "main": "./dist/main/main.js",
-  "repository": "https://github.com/vbalien/simple-react-electron-boilerplate.git",
-  "author": "Jisu Kim",
+  "repository": "https://github.com/vbalien/PandaLyrics2.git",
+  "author": "vbalien(Jisu Kim)",
   "license": "MIT",
   "scripts": {
     "start": "yarn start:renderer",
