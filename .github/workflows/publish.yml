@@ -24,10 +24,9 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Publish releases
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn postinstall
           yarn build
-          yarn electron-builder --publish always
+          yarn electron-builder --publish onTagOrDraft
