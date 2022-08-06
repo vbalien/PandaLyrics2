@@ -63,12 +63,13 @@ function downloadFile(url: string, filename: string) {
 }
 
 function execute(cmd: string) {
-  return new Promise<void>((resolve, reject) => {
-    exec(cmd, function (error) {
+  return new Promise<string>((resolve, reject) => {
+    exec(cmd, function (error, stdout) {
       if (error) {
         reject(Error(error.message));
       } else {
-        resolve();
+        // eslint-disable-next-line no-control-regex
+        resolve(stdout.replace(/\u001b[^m]*?m/g, ''));
       }
     });
   });
@@ -85,7 +86,11 @@ export async function installExtension() {
       extensionFilename
     );
     await execute('spicetify config extensions pandaLyrics.js');
-    await execute('spicetify apply');
+    const out = await execute('spicetify apply');
+
+    if (!/(?:^|\n)success/.test(out)) {
+      throw Error('설치하는데 실패하였습니다.\n' + out);
+    }
 
     if (context.mainWindow) {
       await dialog.showMessageBox(context.mainWindow, {
