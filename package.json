@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./dist/main/main.js",
   "repository": "https://github.com/vbalien/PandaLyrics2.git",
-  "author": "vbalien(Jisu Kim)",
+  "author": "vbalien <webmaster@alien.moe>",
   "license": "MIT",
   "scripts": {
     "start": "yarn start:renderer",
