@@ -19,7 +19,7 @@
   "build": {
     "productName": "PandaLyrics",
     "appId": "moe.alien.PandaLyrics",
-    "artifactName": "${productName}.${ext}",
+    "artifactName": "${productName}-${arch}.${ext}",
     "asar": true,
     "files": [
       "dist",
@@ -31,7 +31,7 @@
       "output": "release"
     },
     "win": {
-      "artifactName": "${productName} Setup.${ext}",
+      "artifactName": "${productName} Setup-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
