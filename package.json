@@ -31,13 +31,13 @@
       "output": "release"
     },
     "win": {
+      "artifactName": "${productName} Setup.${ext}",
       "target": [
         {
           "target": "nsis",
           "arch": [
             "x64"
-          ],
-          "artifactName": "${productName} Setup.${ext}"
+          ]
         }
       ]
     },
