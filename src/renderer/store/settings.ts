@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { atom, selector, useRecoilState } from 'recoil';
 
 export type SettingsType = {
@@ -89,16 +90,19 @@ type SettingsSetter = <K extends keyof SettingsType, V extends SettingsType[K]>(
 ) => void;
 export function useSettings(): [SettingsType, SettingsSetter] {
   const [state, setState] = useRecoilState(SettingsState);
-  const setter: SettingsSetter = (key, value) => {
-    if (typeof key === 'string') {
-      setState(currVal => {
-        return { ...currVal, [key]: value };
-      });
-    } else {
-      setState(currVal => {
-        return { ...currVal, ...key };
-      });
-    }
-  };
+  const setter: SettingsSetter = useCallback(
+    (key, value) => {
+      if (typeof key === 'string') {
+        setState(currVal => {
+          return { ...currVal, [key]: value };
+        });
+      } else {
+        setState(currVal => {
+          return { ...currVal, ...key };
+        });
+      }
+    },
+    [setState]
+  );
   return [state, setter];
 }
