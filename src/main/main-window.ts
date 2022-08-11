@@ -195,6 +195,7 @@ export default class MainWindow extends BrowserWindow {
     this.webContents.send('app:setLyric', lyricData);
     this.currLyric = lyricData;
   }
+
   private async onChangeState({ data }: ChangeStateMessage) {
     if (data.is_paused) {
       this.setLyric(null);
