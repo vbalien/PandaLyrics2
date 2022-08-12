@@ -1,22 +1,22 @@
 import { css } from '@emotion/react';
 import { useEffect, useMemo, useState } from 'react';
-import { ColorResult } from 'react-color';
 import {
   SettingsBoolType,
   SettingsColorType,
   SettingsNumberType,
   useSettings,
 } from '../../store/settings';
-import ColorPicker from './ColorPicker';
 
 export default function Settings() {
   const [fonts, setFonts] = useState<string[]>([]);
   const [settings, setSettings] = useSettings();
   const { handleChangeColor, handleChangeNumber, handleChangeBool } = useMemo(
     () => ({
-      handleChangeColor: (key: SettingsColorType) => (color: ColorResult) => {
-        setSettings(key, color.hex);
-      },
+      handleChangeColor:
+        (key: SettingsColorType) =>
+        (ev: React.ChangeEvent<HTMLInputElement>) => {
+          setSettings(key, ev.target.value);
+        },
       handleChangeNumber:
         (key: SettingsNumberType) =>
         (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,8 +55,9 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">글자색</span>
-          <ColorPicker
-            color={settings.fontColor}
+          <input
+            type="color"
+            value={settings.fontColor}
             onChange={handleChangeColor('fontColor')}
           />
         </label>
@@ -65,8 +66,9 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">그림자색</span>
-          <ColorPicker
-            color={settings.shadowColor}
+          <input
+            type="color"
+            value={settings.shadowColor}
             onChange={handleChangeColor('shadowColor')}
           />
         </label>
@@ -162,8 +164,9 @@ export default function Settings() {
       <div className="form-control">
         <label className="label cursor-pointer">
           <span className="label-text">배경색</span>
-          <ColorPicker
-            color={settings.bgColor}
+          <input
+            type="color"
+            value={settings.bgColor}
             onChange={handleChangeColor('bgColor')}
           />
         </label>
