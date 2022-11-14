@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import https from 'https';
 import { dialog } from 'electron';
-import { context } from './context';
+import MainWindow from './main-window';
 
 async function getSpicetifyConfigPath() {
   return new Promise<string>((resolve, reject) => {
@@ -75,7 +75,7 @@ function execute(cmd: string) {
   });
 }
 
-export async function installExtension() {
+export async function installExtension(mainWindow: MainWindow) {
   try {
     const configPath = await getSpicetifyConfigPath();
     const extensionPath = path.join(configPath, 'Extensions');
@@ -92,15 +92,15 @@ export async function installExtension() {
       throw Error('설치하는데 실패하였습니다.\n' + out);
     }
 
-    if (context.mainWindow) {
-      await dialog.showMessageBox(context.mainWindow, {
+    if (mainWindow) {
+      await dialog.showMessageBox(mainWindow, {
         message: '설치되었습니다.',
       });
     }
   } catch (err) {
     if (err instanceof Error) {
-      if (context.mainWindow) {
-        await dialog.showMessageBox(context.mainWindow, {
+      if (mainWindow) {
+        await dialog.showMessageBox(mainWindow, {
           message: err.message,
         });
       }

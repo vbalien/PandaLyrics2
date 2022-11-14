@@ -1,10 +1,19 @@
-import { app, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, Menu, MenuItemConstructorOptions, Tray } from 'electron';
+import { injectable } from 'inversify';
 import { LyricData } from './alsong';
+import { lazyInject } from './inversify.config';
 import { checkExtension, installExtension } from './extension-installer';
+import MainWindow from './main-window';
 import { Separator } from './menu';
-import { AppContext } from './types';
+import { TYPES } from './types';
 
+@injectable()
 export default class TrayMenu {
+  @lazyInject(TYPES.MainWindow)
+  private mainWindow!: MainWindow;
+  @lazyInject(TYPES.Tray)
+  private tray!: Tray;
+
   private _menu?: Menu;
   private raw: MenuItemConstructorOptions[] = [
     {
@@ -12,7 +21,7 @@ export default class TrayMenu {
       type: 'checkbox',
       id: 'appVisible',
       click: menuItem => {
-        this.context.mainWindow?.setVisible(menuItem.checked, true);
+        this.mainWindow.setVisible(menuItem.checked, true);
       },
     },
     Separator,
@@ -23,7 +32,7 @@ export default class TrayMenu {
       type: 'checkbox',
       id: 'moveMode',
       click: menuItem => {
-        this.context.mainWindow?.setMoveMode(menuItem.checked, true);
+        this.mainWindow.setMoveMode(menuItem.checked, true);
       },
     },
     {
@@ -31,7 +40,7 @@ export default class TrayMenu {
       type: 'normal',
       id: 'settings',
       click: () => {
-        this.context.mainWindow?.requestSettingsOpen();
+        this.mainWindow.requestSettingsOpen();
       },
     },
     Separator,
@@ -44,8 +53,6 @@ export default class TrayMenu {
       },
     },
   ];
-
-  constructor(private context: AppContext) {}
 
   async updateInstallMenu() {
     const installMenuIdx = this.raw.findIndex(item => item.id === 'install');
@@ -60,7 +67,7 @@ export default class TrayMenu {
         type: 'normal',
         id: 'install',
         click: async () => {
-          await installExtension();
+          await installExtension(this.mainWindow);
           this.updateInstallMenu();
         },
       });
@@ -103,7 +110,7 @@ export default class TrayMenu {
   }
 
   apply(): void {
-    this.context.tray?.setContextMenu(this.build());
+    this.tray.setContextMenu(this.build());
   }
 
   setLyrics(lyrics: LyricData[]) {
@@ -117,7 +124,7 @@ export default class TrayMenu {
         label: `${lyric.title} - ${lyric.artist} [${lyric.album}]`,
         type: 'radio',
         click: menuItem => {
-          this.context.mainWindow?.setLyric(Number.parseInt(menuItem.id));
+          this.mainWindow.setLyric(Number.parseInt(menuItem.id));
         },
       });
     }
@@ -128,7 +135,7 @@ export default class TrayMenu {
         label: `선택 안함`,
         type: 'radio',
         click: menuItem => {
-          this.context.mainWindow?.setLyric(Number.parseInt(menuItem.id));
+          this.mainWindow.setLyric(Number.parseInt(menuItem.id));
         },
       });
     }
@@ -138,13 +145,13 @@ export default class TrayMenu {
     const menu = this.getItem('appVisible');
     if (!menu) return;
     menu.checked = value;
-    this.context.tray?.setContextMenu(this.build());
+    this.tray.setContextMenu(this.build());
   }
 
   setMoveModeCheck(value: boolean) {
     const menu = this.getItem('moveMode');
     if (!menu) return;
     menu.checked = value;
-    this.context.tray?.setContextMenu(this.build());
+    this.tray.setContextMenu(this.build());
   }
 }

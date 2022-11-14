@@ -1,10 +1,10 @@
-import { app, nativeImage, Tray } from 'electron';
-import path from 'path';
+import 'reflect-metadata';
+import { app } from 'electron';
 import fixPath from 'fix-path';
-import PandaLyricsWindow from './main-window';
 import { setApplicationMenu } from './menu';
-import { context } from './context';
-import TrayMenu from './tray-menu';
+import { TYPES } from './types';
+import MainWindow from './main-window';
+import { container } from './inversify.config';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -24,23 +24,11 @@ if (!gotTheLock) {
   });
 
   app.on('activate', () => {
-    if (context.mainWindow === null) {
-      context.mainWindow = new PandaLyricsWindow(context);
-    }
+    container.get<MainWindow>(TYPES.MainWindow).show();
   });
 
   app.on('ready', async () => {
-    const iconPath = path.join(__dirname, '../../assets/Icon-App-20x20.png');
-    const icon = nativeImage.createFromPath(iconPath);
-    const tray = (context.tray = new Tray(icon));
-    const trayMenu = (context.trayMenu = new TrayMenu(context));
-    trayMenu.apply();
-    tray.setToolTip('PandaLyrics');
-    tray.on('double-click', () => {
-      context.trayMenu?.menu?.getMenuItemById('appVisible')?.click();
-    });
-
-    context.mainWindow = new PandaLyricsWindow(context);
+    container.get<MainWindow>(TYPES.MainWindow);
     setApplicationMenu();
   });
 }

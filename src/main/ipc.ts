@@ -1,31 +1,31 @@
 import { app, ipcMain, screen } from 'electron';
 import { getFonts } from 'font-list';
-import { context } from './context';
+import MainWindow from './main-window';
 
-export function setupIpc() {
+export function setupIpc(mainWindow: MainWindow) {
   ipcMain.on('app:windowMoving', (_e, mouseX, mouseY) => {
     const { x, y } = screen.getCursorScreenPoint();
-    context.mainWindow?.setPosition(x - mouseX, y - mouseY);
+    mainWindow.setPosition(x - mouseX, y - mouseY);
   });
 
   ipcMain.on('app:setWindowPos', (_e, x, y) => {
-    if (!context.mainWindow) {
+    if (!mainWindow) {
       return;
     }
-    const [curX, curY] = context.mainWindow.getPosition();
-    context.mainWindow.setPosition(x ?? curX, y ?? curY);
+    const [curX, curY] = mainWindow.getPosition();
+    mainWindow.setPosition(x ?? curX, y ?? curY);
   });
 
   ipcMain.on('app:setMove', (_ev, value: boolean) => {
-    context.mainWindow?.setMoveMode(value);
+    mainWindow.setMoveMode(value);
   });
 
   ipcMain.on('app:setVisible', (_ev, value: boolean) => {
-    context.mainWindow?.setVisible(value);
+    mainWindow.setVisible(value);
   });
 
   ipcMain.on('app:updateHeight', (_ev, height: number) => {
-    context.mainWindow?.setSize(context.mainWindow?.getSize()[0], height);
+    mainWindow.setSize(mainWindow.getSize()[0], height);
   });
 
   ipcMain.on('app:getAllSystemFonts', async ev => {
@@ -33,7 +33,7 @@ export function setupIpc() {
   });
 
   ipcMain.on('app:getWindowPos', ev => {
-    ev.returnValue = context.mainWindow?.getPosition();
+    ev.returnValue = mainWindow.getPosition();
   });
 
   ipcMain.on('app:getAutoStart', ev => {
@@ -50,10 +50,10 @@ export function setupIpc() {
   });
 
   ipcMain.on('app:setWindowWidth', (_ev, width: number) => {
-    if (!context.mainWindow) {
+    if (!mainWindow) {
       return;
     }
-    const [, height] = context.mainWindow.getSize();
-    context.mainWindow.setSize(width, height);
+    const [, height] = mainWindow.getSize();
+    mainWindow.setSize(width, height);
   });
 }

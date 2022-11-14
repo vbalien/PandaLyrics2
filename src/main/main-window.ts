@@ -9,7 +9,7 @@ import path from 'path';
 import { WebSocketServer } from 'webpack-dev-server';
 import { getLyricById, getLyricList, LyricDetailData } from './alsong';
 import { setupIpc } from './ipc';
-import { AppContext } from './types';
+import TrayMenu from './tray-menu';
 import {
   setupWebsocket,
   ChangeSongMessage,
@@ -31,7 +31,7 @@ export default class MainWindow extends BrowserWindow {
   private currTime?: number;
   private currLyric: LyricDetailData | null = null;
 
-  constructor(private context: AppContext) {
+  constructor(private trayMenu: TrayMenu) {
     const primaryDisplay = screen.getPrimaryDisplay();
     super({
       frame: false,
@@ -47,10 +47,10 @@ export default class MainWindow extends BrowserWindow {
         preload: MainWindow.Preload,
       },
       useContentSize: true,
-      width: 600,
-      height: 300,
-      x: primaryDisplay.size.width - 600 - 30,
-      y: primaryDisplay.size.height - 300 - 30,
+      width: 450,
+      height: 200,
+      x: primaryDisplay.size.width - 450 - 30,
+      y: primaryDisplay.size.height - 200 - 30,
     });
 
     this.setAlwaysOnTop(true, 'screen-saver');
@@ -62,7 +62,6 @@ export default class MainWindow extends BrowserWindow {
     this.setMenu(null);
     this.setMenuBarVisibility(false);
 
-    this.on('closed', this.onClosed.bind(this));
     this.on('ready-to-show', this.onReadyToShow.bind(this));
     this.webContents.on('devtools-opened', this.onDevtoolsOpened.bind(this));
     this.on('close', this.onClose.bind(this));
@@ -78,14 +77,14 @@ export default class MainWindow extends BrowserWindow {
   }
 
   private onReadyToShow() {
-    setupIpc();
+    setupIpc(this);
     this.wss = setupWebsocket({
       changeSongEvent: this.onChangeSong.bind(this),
       changeStateEvent: this.onChangeState.bind(this),
       tickEvent: this.onTick.bind(this),
       closeEvent: this.onWsClose.bind(this),
     });
-    this.context.trayMenu?.updateInstallMenu();
+    this.trayMenu.updateInstallMenu();
   }
 
   private onWindowOpen(handlerDetails: HandlerDetails) {
@@ -115,17 +114,13 @@ export default class MainWindow extends BrowserWindow {
     this.wss?.close();
   }
 
-  private onClosed() {
-    this.context.mainWindow = null;
-  }
-
   private onDevtoolsOpened() {
     this.focus();
   }
 
   setMoveMode(value: boolean, request?: boolean) {
     this.setIgnoreMouseEvents(!value);
-    this.context.trayMenu?.setMoveModeCheck(value);
+    this.trayMenu.setMoveModeCheck(value);
 
     if (request) {
       this.webContents.send('app:setMove', value);
@@ -153,12 +148,12 @@ export default class MainWindow extends BrowserWindow {
 
   show() {
     super.showInactive();
-    this.context.trayMenu?.setVisibleCheck(true);
+    this.trayMenu.setVisibleCheck(true);
   }
 
   hide() {
     super.hide();
-    this.context.trayMenu?.setVisibleCheck(false);
+    this.trayMenu.setVisibleCheck(false);
   }
 
   setVisible(value: boolean, request?: boolean) {
@@ -180,7 +175,7 @@ export default class MainWindow extends BrowserWindow {
     }
 
     if (typeof lyric === 'number') {
-      this.context.trayMenu?.setLyricsItemCheck(lyric.toString());
+      this.trayMenu.setLyricsItemCheck(lyric.toString());
       if (lyric === -1) {
         lyricData = null;
       } else {
@@ -224,11 +219,11 @@ export default class MainWindow extends BrowserWindow {
         });
       }
 
-      this.context.trayMenu?.setLyrics(lyrics);
+      this.trayMenu.setLyrics(lyrics);
 
       const savedLyricID = await this.getHistory(data.songID);
 
-      this.context.trayMenu?.apply();
+      this.trayMenu.apply();
       if (savedLyricID) {
         await this.setLyric(savedLyricID);
       } else if (lyrics.length === 0) {

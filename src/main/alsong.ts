@@ -26,6 +26,9 @@ export type LyricDetailData = LyricData & {
 type JsonValue = string | boolean | number | Json;
 type Json = { [k: string]: JsonValue };
 
+const ENC_DATA =
+  '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0';
+
 async function alsongRequest(action: string, body: Json) {
   const builder = new XMLBuilder({});
   const xmlBody = builder.build({ [`ns1:${action}`]: body });
@@ -63,14 +66,21 @@ async function alsongRequest(action: string, body: Json) {
             const data = buffer.toString('utf8');
             const parser = new XMLParser();
             const jsonObj = parser.parse(data);
+            const body =
+              jsonObj['soap:Envelope']['soap:Body'][`${action}Response`];
+            let result;
+            let output;
+
+            if (typeof body === 'object' && `${action}Result` in body) {
+              result = body[`${action}Result`];
+              output = body.output;
+            } else {
+              result = null;
+              output = null;
+            }
             resolve({
-              result:
-                jsonObj['soap:Envelope']['soap:Body'][`${action}Response`][
-                  `${action}Result`
-                ],
-              output:
-                jsonObj['soap:Envelope']['soap:Body'][`${action}Response`]
-                  .output,
+              result,
+              output,
             });
           });
         }
@@ -93,12 +103,12 @@ export async function getLyricList({
   artist?: string;
 }): Promise<LyricData[]> {
   const body: Json = {
-    'ns1:encData':
-      '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0',
+    'ns1:encData': ENC_DATA,
     'ns1:pageNo': 1,
   };
   title && (body['ns1:title'] = SqlString.escape(title));
   artist && (body['ns1:artist'] = SqlString.escape(artist));
+
   const json = await alsongRequest('GetResembleLyricList2', body);
   if (
     typeof json.result !== 'object' ||
@@ -113,10 +123,10 @@ export async function getLyricById(
   lyricID: number
 ): Promise<LyricDetailData | null> {
   const body: Json = {
-    'ns1:encData':
-      '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0',
+    'ns1:encData': ENC_DATA,
     'ns1:lyricID': lyricID,
   };
+
   const json = await alsongRequest('GetLyricByID2', body);
   const result = json.result;
   const output = json.output;

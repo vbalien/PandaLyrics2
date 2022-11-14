@@ -30,6 +30,27 @@ export default merge(baseConfig, {
     ],
   },
 
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+            plugins: [
+              'babel-plugin-transform-typescript-metadata',
+              ['@babel/plugin-proposal-decorators', { legacy: true }],
+              ['@babel/plugin-proposal-class-properties', { loose: true }],
+            ],
+            presets: ['@babel/preset-typescript'],
+          },
+        },
+      },
+    ],
+  },
+
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
