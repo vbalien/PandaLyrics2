@@ -54,7 +54,10 @@ export default class MainWindow extends BrowserWindow {
     });
 
     this.setAlwaysOnTop(true, 'screen-saver');
-    this.setVisibleOnAllWorkspaces(true);
+    this.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: true,
+      skipTransformProcessType: true,
+    });
     this.setIgnoreMouseEvents(true);
     this.setMenu(null);
     this.setMenuBarVisibility(false);
