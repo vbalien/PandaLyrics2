@@ -26,11 +26,21 @@ export type LyricDetailData = LyricData & {
 type JsonValue = string | boolean | number | Json;
 type Json = { [k: string]: JsonValue };
 
+const ENC_DATA =
+  '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0';
+
 async function alsongRequest(action: string, body: Json) {
   const builder = new XMLBuilder({});
   const xmlBody = builder.build({ [`ns1:${action}`]: body });
   const data = `<?xml version="1.0" encoding="UTF-8"?>
-  <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope" xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="ALSongWebServer/Service1Soap" xmlns:ns1="ALSongWebServer" xmlns:ns3="ALSongWebServer/Service1Soap12">
+  <SOAP-ENV:Envelope
+    xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:ns1="ALSongWebServer"
+    xmlns:ns2="ALSongWebServer/Service1Soap"
+    xmlns:ns3="ALSongWebServer/Service1Soap12">
     <SOAP-ENV:Body>${xmlBody}</SOAP-ENV:Body>
   </SOAP-ENV:Envelope>`;
   const promise = new Promise<{ result: JsonValue; output?: JsonValue }>(
@@ -93,8 +103,7 @@ export async function getLyricList({
   artist?: string;
 }): Promise<LyricData[]> {
   const body: Json = {
-    'ns1:encData':
-      '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0',
+    'ns1:encData': ENC_DATA,
     'ns1:pageNo': 1,
   };
   title && (body['ns1:title'] = SqlString.escape(title));
@@ -113,8 +122,7 @@ export async function getLyricById(
   lyricID: number
 ): Promise<LyricDetailData | null> {
   const body: Json = {
-    'ns1:encData':
-      '8456ec35caba5c981e705b0c5d76e4593e020ae5e3d469c75d1c6714b6b1244c0732f1f19cc32ee5123ef7de574fc8bc6d3b6bd38dd3c097f5a4a1aa1b438fea0e413baf8136d2d7d02bfcdcb2da4990df2f28675a3bd621f8234afa84fb4ee9caa8f853a5b06f884ea086fd3ed3b4c6e14f1efac5a4edbf6f6cb475445390b0',
+    'ns1:encData': ENC_DATA,
     'ns1:lyricID': lyricID,
   };
   const json = await alsongRequest('GetLyricByID2', body);

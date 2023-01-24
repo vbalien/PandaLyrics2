@@ -21,10 +21,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default class MainWindow extends BrowserWindow {
   static Preload = isDevelopment
-    ? path.join(__dirname, '../../dist/preload.js')
+    ? path.join(__dirname, 'preload.js')
     : path.join(__dirname, 'preload.js');
   static PageUrl = isDevelopment
-    ? 'http://localhost:8080/'
+    ? 'http://localhost:5173/'
     : `file://${path.join(__dirname, '../renderer/index.html')}`;
   private wss?: WebSocketServer;
   private currSongID?: string;
@@ -69,7 +69,9 @@ export default class MainWindow extends BrowserWindow {
     this.webContents.setWindowOpenHandler(this.onWindowOpen.bind(this));
 
     if (isDevelopment) {
-      this.webContents.openDevTools();
+      this.webContents.openDevTools({
+        mode: 'detach',
+      });
     }
 
     const pageUrl = new URL(MainWindow.PageUrl);
